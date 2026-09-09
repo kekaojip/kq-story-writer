@@ -43,4 +43,12 @@ FIRST_DRAFT 默认输出 `draft.md / report.json`。
 第一次 revision 默认输出 `draft_v2.md / report_v2.json`。
 第二次 revision 只有 Main 明确授权时使用 `draft_v3.md / report_v3.json`。
 
+## Archived 状态持久化
+
+归档完成后，`HANDOFF_STATE.json` 不删除，而是保留为 `status: archived`。
+
+Main 清理热区时可以删除 00-06、REVISION、ORIGINAL_DRAFT、NEXT_CONTEXT、characters/rules/benchmark 和 output 热文件，但必须保留 archived handoff state，直到下一任务发布时被新状态原子替换。
+
+这样新会话可以确定上一章已经真正完成 Tracking + Manifest + 清理，而不是只看到一个空工作区。
+
 状态文件不是小说真相源。事实仍以 Main 发布的 00-04、人物、规则与 Execution Card 权威顺序为准。
