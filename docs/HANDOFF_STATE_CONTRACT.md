@@ -19,6 +19,7 @@ Writer 只读，不修改 input。
   "published_at": "ISO-8601",
   "main_source_revision": "optional",
   "writer_repo_base_commit": "optional",
+  "revision_base": null,
   "expected_output": {
     "draft": "output/current/draft.md",
     "report": "output/current/report.json"
@@ -26,6 +27,15 @@ Writer 只读，不修改 input。
   "note": "optional"
 }
 ```
+
+`revision_base`：
+
+- FIRST_DRAFT：`null`
+- 第一次普通返修：`output/current/draft.md`
+- 第二次普通返修：Main 明确指定，例如 `output/current/draft_v2.md`
+- 历史章回炉：`input/current/ORIGINAL_DRAFT.md`
+
+Writer 在 revision 前必须完整读取该基线。
 
 合法状态：
 
@@ -42,6 +52,8 @@ Writer 只在 `awaiting_external_writer` 或 `awaiting_writer_revision` 时执�
 FIRST_DRAFT 默认输出 `draft.md / report.json`。
 第一次 revision 默认输出 `draft_v2.md / report_v2.json`。
 第二次 revision 只有 Main 明确授权时使用 `draft_v3.md / report_v3.json`。
+
+Revision 时 `revision_base` 缺失、不可读或章节不匹配，Writer 必须停止，不得根据聊天上下文猜上一稿。
 
 ## Archived 状态持久化
 
