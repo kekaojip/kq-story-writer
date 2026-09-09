@@ -1,5 +1,7 @@
 # Writer 入口
 
+> **FRAMEWORK LOCK：执行任何工作前先读取仓库根目录 `FRAMEWORK_LOCK.md`。除非 KQ 明确批准，禁止修改、删除、改名、移动、重构或实质替换受保护 Writer Runtime 框架。**
+
 当前仓库只负责正文生成。
 
 执行当前任务时：
