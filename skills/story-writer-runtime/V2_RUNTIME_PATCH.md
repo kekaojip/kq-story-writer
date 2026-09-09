@@ -2,7 +2,7 @@
 
 > 本文件是 `skills/story-writer-runtime/SKILL.md` 的增量覆盖层。
 >
-> 不删除、不重写历史 Runtime；若本文件与 `SKILL.md` 在 revision 输出命名、Style Package、历史回炉输入、handoff 或字数预检上冲突，以本文件为准。
+> 不删除、不重写历史 Runtime；若本文件与 `SKILL.md` 在 revision 输出命名、Style Package、历史回炉输入、handoff、revision base 或字数预检上冲突，以本文件为准。
 
 ---
 
@@ -68,13 +68,49 @@ output/current/report.json
 
 ---
 
-## 4. REVISION 输出统一为版本化文件
+## 4. REVISION 必须先解析基线
+
+存在 `REVISION.md` 时，Writer 必须先读取 `HANDOFF_STATE.revision_base` 指向的正文基线，再执行局部或全文返修。
+
+### 普通第一次返修
+
+典型：
+
+```text
+revision_base = output/current/draft.md
+```
+
+Writer 必须完整读取该文件，不能只凭 REVISION 摘要、聊天上下文或自己对上一稿的记忆重构原文。
+
+### 普通第二次返修
+
+Main 必须明确指定基线，例如：
+
+```text
+revision_base = output/current/draft_v2.md
+```
+
+不得自动猜“最新文件”。
+
+### 历史章节回炉
+
+典型：
+
+```text
+revision_base = input/current/ORIGINAL_DRAFT.md
+```
+
+如果 revision_base 不存在、不可读、章节不匹配或与本轮被审稿版本不一致，停止并申报 `REVISION_BASE_UNRESOLVED`。
+
+---
+
+## 5. REVISION 输出统一为版本化文件
 
 存在 `REVISION.md` 时，**不得覆盖第一稿 `draft.md / report.json`**。
 
 ### 第一次返修
 
-若 `HANDOFF_STATE.writer_attempt` 为 2，或当前只有第一稿：
+若 `HANDOFF_STATE.writer_attempt` 为 2：
 
 ```text
 output/current/draft_v2.md
@@ -96,30 +132,30 @@ Writer 在 report 中记录：
 
 ```json
 {
-  "revision_of": "draft.md",
+  "revision_of": "output/current/draft.md",
   "revision_version": 2
 }
 ```
 
-v3 则 `revision_of` 指向上一个被 Main 选作返修基线的版本。
+v3 则 `revision_of` 必须与 `HANDOFF_STATE.revision_base` 一致。
 
 ---
 
-## 5. 历史章节回炉
+## 6. 历史章节回炉
 
 若存在 `ORIGINAL_DRAFT.md`：
 
-1. 它是当前 revision 的正文基线；
+1. 它必须同时是当前 `revision_base`；
 2. `03_PREVIOUS_PROSE.md` 只负责前文衔接，不替代 ORIGINAL_DRAFT；
 3. `NEXT_CONTEXT.md` 只用于保护已存在的后文依赖；
 4. 不得因为知道后文结果就提前把未来解释写进当前章；
 5. 全文重写也必须服从 04_BOUNDARIES 与 REVISION 的 MUST_PRESERVE。
 
-如果 `REVISION.md` 存在但历史回炉任务声明需要原稿，而 `ORIGINAL_DRAFT.md` 缺失，停止，不凭主仓不可见内容猜。
+如果历史回炉声明需要原稿而 `ORIGINAL_DRAFT.md` 缺失，停止，不凭主仓不可见内容猜。
 
 ---
 
-## 6. Handoff State
+## 7. Handoff State
 
 读取：
 
@@ -130,7 +166,8 @@ Writer 只校验：
 - project / chapter 是否与 00_TASK 一致；
 - run_type 是否与有无 REVISION / ORIGINAL_DRAFT 一致；
 - status 是否允许当前执行；
-- expected_output 是否与本补丁输出命名一致。
+- expected_output 是否与本补丁输出命名一致；
+- revision 时 `revision_base` 是否存在且可读。
 
 允许 Writer 执行的主要状态：
 
@@ -143,7 +180,7 @@ Writer 不修改 HANDOFF_STATE；输出完成后由 Main 检测文件并切到 r
 
 ---
 
-## 7. 字数预检
+## 8. 字数预检
 
 使用：
 
@@ -167,7 +204,7 @@ python skills/story-writer-runtime/scripts/measure_draft.py \
 
 ---
 
-## 8. 输出契约
+## 9. 输出契约
 
 无论 first draft 或 revision：
 
@@ -176,13 +213,13 @@ python skills/story-writer-runtime/scripts/measure_draft.py \
 - 不把分析过程写入正文。
 - 不为消除 detector flag 自动全文改写。
 
-实际文件名以本文件第 3/4 节与 `HANDOFF_STATE.expected_output` 为准。
+实际文件名以本文件第 3/5 节与 `HANDOFF_STATE.expected_output` 为准。
 
 ---
 
-## 9. 热区卫生
+## 10. 热区卫生
 
-Writer 只读取当前 `input/current/` 实际存在文件。
+Writer 只读取当前任务允许的 `input/current/` 文件，以及 revision 时 `revision_base` 明确指向的 Writer 当前输出版本。
 
 如果 Main 已正确发布，目录应只含当前任务材料；Writer 不主动读取 archive，不从上一任务残留“补上下文”。
 
