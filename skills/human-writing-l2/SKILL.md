@@ -3,7 +3,7 @@ name: human-writing-l2
 description: 独立的中文商业网文自然成文与局部去模型化 Skill。基于旧 human-writing 1.9.0-L2 锁定核心重做；第一稿从源头抑制过度完成，返修只处理明确病灶。当前不接入 Writer Runtime 主链。
 ---
 
-# Human Writing L2｜Standalone v0.1
+# Human Writing L2｜Standalone v0.2
 
 > status: standalone
 > production_wired: false
@@ -11,6 +11,7 @@ description: 独立的中文商业网文自然成文与局部去模型化 Skill�
 > story_authority: NONE
 > canon_authority: NONE
 > tracking_authority: NONE
+> previous_frozen_version: `versions/v0.1/`
 
 ## 0. 定位
 
@@ -19,6 +20,19 @@ description: 独立的中文商业网文自然成文与局部去模型化 Skill�
 它只解决一件事：
 
 > **让中文商业网文不要被模型的“完整、漂亮、对称、解释到底”冲动加工成施工稿。**
+
+v0.2 在 v0.1 的五条 L2 原则之上新增一个总原则：
+
+> **Completion Variance｜完成度波动。**
+
+真人感不来自故意写残，而来自不同信息、情绪、动作、对白和段落的完成程度天然不一致。有的内容完整说明，有的只给结果；有的情绪直接说，有的让动作或对白承担；有的问题马上处理，有的只处理到足以继续行动的位置。
+
+```text
+LOCAL_COMPLETENESS: VARIABLE
+UNIFORM_COMPLETENESS: UNDESIRED
+```
+
+不要为了制造“波动”故意加停顿、错字、病句、碎片对白、随机犹豫或无来源动作。
 
 它不负责：
 
@@ -65,6 +79,8 @@ description: 独立的中文商业网文自然成文与局部去模型化 Skill�
 只修命中区域及必要相邻内容。健康部分不顺手优化。
 
 ## 2. L2 五条核心原则
+
+以下五条保持 v0.1 原义不变，由“完成度波动”统一解释，而不是被替换。
 
 ### 2.1 不做连续的漂亮闭合
 
@@ -136,6 +152,12 @@ description: 独立的中文商业网文自然成文与局部去模型化 Skill�
 
 > **故事底下可以闭合，正文表面不要处处闭合。**
 
+补充：
+
+> **Interaction Completion != Semantic Completion**
+
+一次交流已经完成，不代表人物必须把自己的立场、原因、情绪和结论全部说完。对白只需要完成当前的人际动作。
+
 ## 4. Truth / Boundary
 
 本 Skill 没有故事修改权。
@@ -168,6 +190,18 @@ description: 独立的中文商业网文自然成文与局部去模型化 Skill�
 
 命中病灶被修到不再影响阅读，同时 Truth / Boundary 未改变，即停止。
 
+返修优先考虑：
+
+```text
+DELETE
+STOP EARLIER
+COMPRESS
+MERGE
+FLATTEN
+```
+
+不要先重写成另一句更“像人”的漂亮话。
+
 不把一个局部问题扩张成全章重写。
 
 ## 7. 独立状态
@@ -184,6 +218,12 @@ skills/human-writing-l2/**
 skills/story-writer-runtime/**
 START_HERE.md
 Writer Runtime 主链
+```
+
+v0.1 已冻结保存在：
+
+```text
+skills/human-writing-l2/versions/v0.1/**
 ```
 
 是否接入生产流程，需要 KQ 另行明确批准。
