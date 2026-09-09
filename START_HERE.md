@@ -7,11 +7,16 @@
 执行当前任务时：
 
 1. 完整读取 `skills/story-writer-runtime/SKILL.md`。
-2. 按 Skill 规定顺序读取 `input/current/`。
-3. 不读取主小说仓库，不自行寻找额外剧情资料。
-4. 不参考任何已经存在于其他仓库的同章成稿。
-5. 独立生成正文到 `output/current/draft.md`。
-6. 同时生成 `output/current/report.json`。
-7. 完成后停止，不规划下一章，不修改 input。
+2. 完整读取 `skills/story-writer-runtime/V2_RUNTIME_PATCH.md`；若与旧 Runtime 在 revision 输出命名、Style Package、历史回炉输入、handoff 或字数预检上冲突，以该补丁为准。
+3. 按 Skill + V2 Patch 规定顺序读取 `input/current/`。
+4. 不读取主小说仓库，不自行寻找额外剧情资料。
+5. 不参考任何已经存在于其他仓库的同章成稿；历史回炉只使用 Main 明确发布的 `ORIGINAL_DRAFT.md`。
+6. 读取 `HANDOFF_STATE.json`（若存在）并核对 project / chapter / run_type / expected_output。
+7. 按当前模式生成正文：
+   - FIRST_DRAFT → `output/current/draft.md`
+   - 第一次 REVISION → `output/current/draft_v2.md`
+   - Main 明确授权的第二次 REVISION → `output/current/draft_v3.md`
+8. 同步生成对应报告：`report.json / report_v2.json / report_v3.json`。
+9. 完成后停止，不规划下一章，不修改 input，不自行更新 HANDOFF_STATE。
 
-当前任务是否可以执行，以 `input/current/00_TASK.md` 为准。
+当前任务是否可以执行，以 `input/current/00_TASK.md`、`HANDOFF_STATE.json` 与 Runtime 权威边界共同判定。
