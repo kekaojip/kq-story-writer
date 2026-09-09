@@ -18,6 +18,8 @@ Writer 只写 `output/current/`，不修改 input。
 
 具体 expected output 以 `input/current/HANDOFF_STATE.json.expected_output` 为准，并必须符合 `skills/story-writer-runtime/V2_RUNTIME_PATCH.md`。
 
+Revision 开始前必须读取 `HANDOFF_STATE.revision_base` 指向的正文基线；无法读取时停止。
+
 ## Report 最低格式
 
 ```json
@@ -32,11 +34,11 @@ Writer 只写 `output/current/`，不修改 input。
 }
 ```
 
-Revision report 额外记录：
+Revision report 额外记录，并与 HANDOFF_STATE 保持一致：
 
 ```json
 {
-  "revision_of": "draft.md",
+  "revision_of": "output/current/draft.md",
   "revision_version": 2
 }
 ```
