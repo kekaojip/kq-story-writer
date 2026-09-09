@@ -1,4 +1,4 @@
-# PROVENANCE｜Human Writing L2 Standalone
+# PROVENANCE｜Human Writing L2
 
 ## 1. 来源
 
@@ -37,7 +37,7 @@
 
 ## 3. 本次处理方式
 
-本目录不是历史文件的逐字镜像，而是一个新的独立 Skill。
+本目录不是历史文件的逐字镜像，而是一个新的独立 Skill 起点，随后经 KQ 明确批准接入 Writer Runtime。
 
 保留：
 
@@ -58,12 +58,38 @@
 - 与当前 Writer Runtime 已有题材 prose card 重复的 genre calibration；
 - 非小说的论坛、现实文章、通用写作路由。
 
-## 4. 独立性
+## 4. 版本保护
 
-本 Skill 当前：
+独立首版 v0.1 已原样冻结：
 
-`production_wired: false`
+`skills/human-writing-l2/versions/v0.1/**`
 
-没有修改任何受 `FRAMEWORK_LOCK.md` 保护的现有 Writer Runtime 文件。
+其核心文件 blob SHA 与升级前一致，用于回归和逐文件核对。
 
-它只作为新增旁路能力存在。未来若要让 `START_HERE.md` 或 `story-writer-runtime/SKILL.md` 自动调用本 Skill，必须由 KQ 另行明确批准。
+当前 live 版本为 v0.2，新增 `Completion Variance｜完成度波动`，但不替换 v0.1 五条核心原则。
+
+## 5. 生产接入
+
+KQ 已明确批准 Human Writing L2 接入 Writer Runtime。
+
+当前状态：
+
+`production_wired: true`
+
+接入宿主：
+
+`skills/story-writer-runtime/SKILL.md`
+
+接入规则：
+
+- FIRST_DRAFT：默认加载 Human Writing L2 第一稿模式，从源头抑制过度完成；
+- LOCAL_REVISION：仅在上游给出具体正文自然度 / 过度完成类 defect 时启动；
+- 旧 `anti-ai-writing`、`banned-words` 与相关检测脚本保留为按需诊断 / 局部修复辅助；
+- 默认不做全章 AI 清洗；
+- Human Writing L2 不获得剧情、Canon、Tracking 或主仓库修改权限。
+
+Writer Runtime 接入前原版已冻结：
+
+`skills/story-writer-runtime/versions/pre-human-writing-l2/SKILL.md`
+
+此次接入没有修改 `START_HERE.md`、upstream 原 reference、输出契约或主小说仓库。
