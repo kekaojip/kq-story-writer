@@ -7,6 +7,7 @@
 - 目标字数：2800-3200 visible_chars_v1
 - 平台方向：番茄男频
 - 题材：悬疑脑洞 + 规则异常 + 都市异能
+- 题材正文卡：只读取 `skills/story-writer-runtime/references/genre-prose-cards/悬疑脑洞.md`，不要扫描其他题材卡
 - 视角：第三人称限知，贴林砚
 - 输出：`output/current/draft.md`
 - 申报：`output/current/report.json`
