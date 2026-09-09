@@ -15,9 +15,11 @@
 5. `input/current/characters/` 与 `input/current/rules/` 中本章已发布的必要约束。
 6. `input/current/03_PREVIOUS_PROSE.md` 的语言与场景连续性。
 7. `input/current/benchmark/` 的节奏、情绪、文风参考。
-8. 本 Skill 的通用正文规则。
+8. Human Writing L2 与本 Skill 的通用正文规则。
 
 低优先级不得覆盖高优先级事实。
+
+在第 8 层内部，`skills/human-writing-l2/` 负责**正文行为策略**：控制解释、认知、对白、段落和局部语义写到哪里算够；本 Skill 的其他 references 负责提供题材、文风、对话和写作技法。其他通用 reference 不得用固定配额、统一清洗或模板化要求覆盖 Human Writing L2 的完成度波动原则。当前任务、本书明确文风和已选 benchmark 的明确要求仍按上面的权威顺序优先。
 
 ## 启动顺序
 
@@ -29,12 +31,80 @@
 4. 完整读取 `03_PREVIOUS_PROSE.md`。
 5. 完整读取 `04_BOUNDARIES.md`。
 6. 读取 `characters/`、`rules/`、`benchmark/` 当前实际存在的文件。
-7. 按任务需要读取本 Skill 的 references。
-8. 写正文。
-9. 做正文层自检。
-10. 写 `output/current/draft.md` 与 `output/current/report.json`。
+7. 确定正文执行模式并加载 `skills/human-writing-l2/SKILL.md`：
+   - 不存在 `input/current/REVISION.md`：使用 `FIRST_DRAFT`。
+   - 存在 `input/current/REVISION.md`：先读取 `REVISION.md`，再按“修改模式”决定是否使用 `LOCAL_REVISION`。
+8. 按任务需要读取本 Skill 的其他 references。
+9. 写正文。
+10. 做正文层自检；自检优先核对 Truth / Boundary、必须情节点、人物知识、停笔点、格式与输出契约，不自动触发全章去 AI 清洗。
+11. 写 `output/current/draft.md` 与 `output/current/report.json`。
 
 缺少 00-04 任一必需文件时停止，不猜测、不自行补建剧情。
+
+## Human Writing L2 接入
+
+### FIRST_DRAFT
+
+没有 `REVISION.md` 时，Human Writing L2 是默认正文行为层。
+
+必须按 `skills/human-writing-l2/SKILL.md` 的 `FIRST_DRAFT` 模式执行，并读取其规定的第一稿 references：
+
+- `skills/human-writing-l2/references/l2-core.md`
+- `skills/human-writing-l2/references/web-fiction.md`
+- `skills/human-writing-l2/references/positive-writing.md`
+
+第一稿重点不是“写完再去 AI”，而是从源头避免：
+
+- 连续漂亮闭合；
+- 新信息一次推演到底；
+- 每个情绪都解释完整；
+- 每轮对白都完成全部语义；
+- 每段都像标准答案；
+- 句段、认知与解释长期保持相同完成度。
+
+如果动作、对白、现实结果已经承载当前意义，不再自动补一层心理解释或总结。
+
+第一稿完成后，不自动读取 `human-writing-l2/references/local-revision.md`，也不为了“更像人”自行再洗一遍全文。
+
+### 通用 references 的位置
+
+Human Writing L2 不替代题材、文风、对话和 craft reference。
+
+这些文件继续按需提供“怎么写”的能力：
+
+- `references/long-format.md`
+- `references/writing-craft.md`
+- `references/dialogue-mastery.md`
+- `references/style-resolution.md`
+- `references/genre-prose-cards.md` 与当前题材卡
+- `references/style-genre-modules.md` 仅在当前任务没有精确题材卡时回退
+
+其中出现的字数、句长、对白长度、事件数量、节奏模板或其他量化规则，除非当前任务或本书明确要求，否则作为方法与诊断参考，不得机械执行成固定配额，也不得因此新增未批准剧情。
+
+### 旧 anti-ai 体系的职责
+
+以下资产保留，不删除、不替换：
+
+- `references/anti-ai-writing.md`
+- `references/banned-words.md`
+- `scripts/check-ai-patterns.js`
+- `scripts/check-degeneration.js`
+
+它们从“每章写完默认全章清洗”降为**按需诊断与局部修复辅助**。
+
+默认 FIRST_DRAFT 不为清空这些文件或脚本的全部 flag 而改文。只有以下情况才优先调用：
+
+- `00_TASK.md` 明确要求专项检查；
+- 上游 Reviewer / 作者指出具体 AI 表面病灶；
+- 某一局部出现明显高频模板、禁用词、重复结算或退化，需要辅助定位。
+
+诊断命中不等于必须修改；仍需回到上下文、角色、题材、文风和 Human Writing L2 判断。不得为了检测率进行全文同义词替换、全章人类化或统一声音。
+
+### `long-chapter-quality.md`
+
+`references/long-chapter-quality.md` 只用于 Writer 权限内的正文质量复核。
+
+如果其中某项需要新增情节、重排故事、重新设计钩子、改变读者契约、调整长期节奏或动用主仓库真相权限，Writer 不执行，只在 `report.json` 的 `uncertain_points` 或 `deviations` 申报给主模型。
 
 ## 正文权限
 
@@ -79,15 +149,25 @@
 
 正文执行层可读取：
 
+### 默认正文支持
+
 - `references/long-format.md`
 - `references/writing-craft.md`
 - `references/dialogue-mastery.md`
 - `references/style-resolution.md`
+- `references/genre-prose-cards.md` 与当前题材卡
+- `references/style-genre-modules.md` 仅在当前任务没有精确题材卡时回退
+
+### 按需诊断 / 局部修复
+
 - `references/anti-ai-writing.md`
 - `references/banned-words.md`
 - `references/long-chapter-quality.md`
-- `references/genre-prose-cards.md` 与当前题材卡
-- `references/style-genre-modules.md` 仅在当前任务没有精确题材卡时回退
+- `scripts/check-ai-patterns.js`
+- `scripts/check-degeneration.js`
+- `skills/human-writing-l2/references/local-revision.md`：仅 `LOCAL_REVISION`
+- `skills/human-writing-l2/references/diagnostic-guide.md`：需要定位表面规律时才读
+- `skills/human-writing-l2/scripts/check_prose.py`：只报警，不拥有改文权
 
 不要把 reference 的方法词、标签、检查报告写进正文。
 
@@ -125,4 +205,19 @@
 2. 再读取 `REVISION.md`。
 3. 只修改明确指出的问题与其必要邻接句段。
 4. 不借修改机会重设计其他剧情。
-5. 输出覆盖当前候选稿并更新 `report.json`。
+5. 判断本轮修订类型：
+   - 若问题属于过度解释、重复结算、完成度过齐、对白把意思说满、采访式问答、段落过度规整、局部模型腔等正文自然度问题：加载 `skills/human-writing-l2/SKILL.md` 的 `LOCAL_REVISION` 模式，只修命中区域。
+   - 若问题属于名字、标点、格式、连续性、真值、信息边界或其他机械/事实问题：执行最小修复，不因为存在 `REVISION.md` 自动做 Human Writing 全章返修。
+6. `LOCAL_REVISION` 优先使用删、停、压缩、合并、局部重铸；不把局部问题扩张成全章重写。
+7. 旧 anti-ai references / scripts 只在当前 defect 需要辅助定位时调用；不得为清空 flag 顺手修改健康段落。
+8. 输出覆盖当前候选稿并更新 `report.json`。
+
+## 接入状态
+
+Human Writing L2 已由 KQ 明确批准接入 Writer Runtime。
+
+- integration: `ENABLED`
+- first_draft_mode: `human-writing-l2/FIRST_DRAFT`
+- revision_mode: `targeted LOCAL_REVISION when applicable`
+- global_ai_wash: `DISABLED BY DEFAULT`
+- framework_backup: `skills/story-writer-runtime/versions/pre-human-writing-l2/SKILL.md`
