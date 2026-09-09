@@ -74,4 +74,4 @@ jobs:
           git commit -m "sync exact writer runtime assets from pinned upstream"
           git push
 
-# bootstrap trigger: pinned-upstream-v1
+# bootstrap trigger: pinned-upstream-v2
