@@ -14,12 +14,14 @@
 4. `input/current/00_TASK.md` 的章节、视角、字数和执行模式。
 5. `input/current/characters/` 与 `input/current/rules/` 中本章已发布的必要约束。
 6. `input/current/03_PREVIOUS_PROSE.md` 的语言与场景连续性。
-7. `input/current/benchmark/` 的节奏、情绪、文风参考。
-8. Human Writing L2 与本 Skill 的通用正文规则。
+7. `input/current/benchmark/` 的节奏、情绪、文风参考，以及其中可选的 `EXECUTION_CARD.md`。
+8. Human Writing L2 与本 Skill 的通用正文规则 / execution slices。
 
 低优先级不得覆盖高优先级事实。
 
-在第 8 层内部，`skills/human-writing-l2/` 负责**正文行为策略**：控制解释、认知、对白、段落和局部语义写到哪里算够；本 Skill 的其他 references 负责提供题材、文风、对话和写作技法。其他通用 reference 不得用固定配额、统一清洗或模板化要求覆盖 Human Writing L2 的完成度波动原则。当前任务、本书明确文风和已选 benchmark 的明确要求仍按上面的权威顺序优先。
+`EXECUTION_CARD.md` 不是第二份细纲，也不是新的真相源。它只把主模型已经批准的悬念、战斗、钩子、反转、情绪和对白执行意图压缩给 Writer。若它与 00-04、人物或规则文件冲突，以更高层输入为准，并把冲突写入 `report.json.uncertain_points`。
+
+在第 8 层内部，`skills/human-writing-l2/` 负责**正文行为策略**：控制解释、认知、对白、段落和局部语义写到哪里算够；本 Skill 的其他 references 与 `references/execution/` 负责提供题材、文风、对话和当前章专项执行技法。其他通用 reference 不得用固定配额、统一清洗或模板化要求覆盖 Human Writing L2 的完成度波动原则。当前任务、本书明确文风和已选 benchmark 的明确要求仍按上面的权威顺序优先。
 
 ## 启动顺序
 
@@ -30,16 +32,48 @@
 3. 完整读取 `02_CURRENT_STATE.md`。
 4. 完整读取 `03_PREVIOUS_PROSE.md`。
 5. 完整读取 `04_BOUNDARIES.md`。
-6. 读取 `characters/`、`rules/`、`benchmark/` 当前实际存在的文件。
+6. 读取 `characters/`、`rules/`、`benchmark/` 当前实际存在的文件；若存在 `benchmark/EXECUTION_CARD.md`，必须读取并识别其中实际存在的模块。
 7. 确定正文执行模式并加载 `skills/human-writing-l2/SKILL.md`：
    - 不存在 `input/current/REVISION.md`：使用 `FIRST_DRAFT`。
    - 存在 `input/current/REVISION.md`：先读取 `REVISION.md`，再按“修改模式”决定是否使用 `LOCAL_REVISION`。
-8. 按任务需要读取本 Skill 的其他 references。
-9. 写正文。
-10. 做正文层自检；自检优先核对 Truth / Boundary、必须情节点、人物知识、停笔点、格式与输出契约，不自动触发全章去 AI 清洗。
-11. 写 `output/current/draft.md` 与 `output/current/report.json`。
+8. 加载 execution slices：
+   - 默认可读取 `references/execution/scene-craft.md`；
+   - `EXECUTION_CARD` 含 `SUSPENSE` → 读取 `references/execution/suspense-execution.md`；
+   - 含 `COMBAT` → 读取 `references/execution/combat-execution.md`；
+   - 含 `HOOK` → 读取 `references/execution/hook-execution.md`；
+   - 含 `REVERSAL` → 读取 `references/execution/reversal-execution.md`；
+   - 没有对应模块就不加载对应专项切片，也不得自行补造模块。
+9. 按任务需要读取本 Skill 的其他 references。
+10. 写正文候选到 `output/current/draft.md`。
+11. 做正文层自检；自检优先核对 Truth / Boundary、必须情节点、人物知识、停笔点、格式与输出契约，不自动触发全章去 AI 清洗。
+12. 对已落盘候选运行“确定性只读预检”，记录结果但不为了清 flag 自动改全文。
+13. 写或更新 `output/current/report.json`。
 
 缺少 00-04 任一必需文件时停止，不猜测、不自行补建剧情。
+
+## EXECUTION_CARD 与 execution slices
+
+### `PROSE CORE`
+
+如果存在 `EXECUTION_CARD.md`，`PROSE CORE` 只用于补充当前章的正文执行重点，例如：
+
+- 本章功能与主要读感；
+- 最重要的可见变化；
+- 解释应停到哪里；
+- 必须真正落到正文的批准内容；
+- 特别禁止 Writer 自行补造的内容。
+
+它不能覆盖细纲、状态与边界。
+
+### 专项模块
+
+- `SUSPENSE`：只控制已批准信息的释放顺序、视角可知范围与悬念停点。
+- `COMBAT`：只控制已批准胜负、能力展示和爽感如何落成正文。
+- `HOOK`：只负责把批准的章首/章尾功能落好，尤其严格服从最终停笔点。
+- `REVERSAL`：只负责批准线索、误导和揭示怎么呈现，不设计新真相。
+- `EMOTION` / `DIALOGUE`：主要由 Human Writing L2、现有 dialogue/craft references 和卡片中的当前章决策共同执行，不新增独立剧情。
+
+execution slice 永远只有表达权，没有剧情设计权。
 
 ## Human Writing L2 接入
 
@@ -78,6 +112,8 @@ Human Writing L2 不替代题材、文风、对话和 craft reference。
 - `references/style-resolution.md`
 - `references/genre-prose-cards.md` 与当前题材卡
 - `references/style-genre-modules.md` 仅在当前任务没有精确题材卡时回退
+- `references/execution/scene-craft.md`
+- 当前 `EXECUTION_CARD` 实际命中的专项 execution slices
 
 其中出现的字数、句长、对白长度、事件数量、节奏模板或其他量化规则，除非当前任务或本书明确要求，否则作为方法与诊断参考，不得机械执行成固定配额，也不得因此新增未批准剧情。
 
@@ -105,6 +141,53 @@ Human Writing L2 不替代题材、文风、对话和 craft reference。
 `references/long-chapter-quality.md` 只用于 Writer 权限内的正文质量复核。
 
 如果其中某项需要新增情节、重排故事、重新设计钩子、改变读者契约、调整长期节奏或动用主仓库真相权限，Writer 不执行，只在 `report.json` 的 `uncertain_points` 或 `deviations` 申报给主模型。
+
+## 确定性只读预检
+
+Writer 写出 `output/current/draft.md` 后，默认执行以下只读检查。**这些检查提供证据，不拥有自动改文权。**
+
+### 1. 细纲照搬检测
+
+```bash
+node skills/story-writer-runtime/scripts/check-outline-copy.js \
+  --outline input/current/01_OUTLINE.md \
+  output/current/draft.md
+```
+
+作用：发现连续词面照搬细纲的高风险片段。
+
+- finding != 自动改写；
+- 固定专名、系统面板、必要原话等可能是合法重合；
+- 明显“逐条翻译提纲”风险写入 `report.json.preflight.outline_copy`，交给上游 Reviewer / Main 裁决。
+
+### 2. 模型退化检测
+
+```bash
+node skills/story-writer-runtime/scripts/check-degeneration.js --check output/current/draft.md
+```
+
+作用：发现复读、截断、占位符、工程词泄漏等退化。
+
+- blocking 结果写入 `report.json.preflight.degeneration`；
+- 不借机做全章 stylistic rewrite。
+
+### 3. 字数测量
+
+```bash
+python skills/story-writer-runtime/scripts/measure_draft.py \
+  output/current/draft.md \
+  --outline input/current/01_OUTLINE.md
+```
+
+字数口径与主工作流共享 `visible_chars_v1`。Writer 只负责测量并报告：
+
+- 不因为 under 自行新增剧情；
+- 不因为 over 删除必须情节点；
+- 最终是否接受当前长度、修改目标或返修，由 Main 决定。
+
+### 4. AI pattern 检查不是默认第一稿清洗
+
+`check-ai-patterns.js` 继续保留，但 FIRST_DRAFT 默认不以清空全部 AI-style flag 为完成条件。只有任务、Reviewer 或明确 defect 需要时调用。
 
 ## 正文权限
 
@@ -157,6 +240,14 @@ Human Writing L2 不替代题材、文风、对话和 craft reference。
 - `references/style-resolution.md`
 - `references/genre-prose-cards.md` 与当前题材卡
 - `references/style-genre-modules.md` 仅在当前任务没有精确题材卡时回退
+- `references/execution/scene-craft.md`
+
+### EXECUTION_CARD 按需专项
+
+- `references/execution/suspense-execution.md`
+- `references/execution/combat-execution.md`
+- `references/execution/hook-execution.md`
+- `references/execution/reversal-execution.md`
 
 ### 按需诊断 / 局部修复
 
@@ -179,7 +270,7 @@ Human Writing L2 不替代题材、文风、对话和 craft reference。
 
 ### `output/current/report.json`
 
-格式：
+最低格式：
 
 ```json
 {
@@ -193,9 +284,22 @@ Human Writing L2 不替代题材、文风、对话和 craft reference。
 }
 ```
 
+允许增加只读预检结果：
+
+```json
+{
+  "preflight": {
+    "outline_copy": {"status": "clean|findings|not_run", "summary": "..."},
+    "degeneration": {"status": "clean|findings|not_run", "summary": "..."},
+    "wordcount": {"metric": "visible_chars_v1", "actual": 0, "status": "measured|internal_pass|borderline|under|over"}
+  }
+}
+```
+
 - `deviations`：若任何批准情节点没有完成，或不得不偏离输入，必须明确记录。
 - `uncertain_points`：输入之间有歧义但不至于阻塞写作时记录。
 - 所有数组为空是合法状态。
+- preflight finding 只是证据；除非它同时代表事实/边界偏离，否则不要伪装成 `new_facts`。
 
 ## 修改模式
 
@@ -210,14 +314,19 @@ Human Writing L2 不替代题材、文风、对话和 craft reference。
    - 若问题属于名字、标点、格式、连续性、真值、信息边界或其他机械/事实问题：执行最小修复，不因为存在 `REVISION.md` 自动做 Human Writing 全章返修。
 6. `LOCAL_REVISION` 优先使用删、停、压缩、合并、局部重铸；不把局部问题扩张成全章重写。
 7. 旧 anti-ai references / scripts 只在当前 defect 需要辅助定位时调用；不得为清空 flag 顺手修改健康段落。
-8. 输出覆盖当前候选稿并更新 `report.json`。
+8. 如果 REVISION 涉及悬念、战斗、钩子或反转执行，仍按当前 `EXECUTION_CARD` 对应模块加载 execution slice；不得借返修重新设计模块。
+9. 输出覆盖当前候选稿并更新 `report.json`，重新运行受影响的只读预检。
 
 ## 接入状态
 
-Human Writing L2 已由 KQ 明确批准接入 Writer Runtime。
+Human Writing L2 与 Writer Runtime V2 execution layer 已由 KQ 明确批准接入。
 
-- integration: `ENABLED`
+- human_writing_integration: `ENABLED`
+- execution_card: `ENABLED WHEN PRESENT`
+- execution_slices: `ENABLED BY MODULE`
 - first_draft_mode: `human-writing-l2/FIRST_DRAFT`
 - revision_mode: `targeted LOCAL_REVISION when applicable`
+- deterministic_preflight: `outline-copy + degeneration + wordcount`
 - global_ai_wash: `DISABLED BY DEFAULT`
-- framework_backup: `skills/story-writer-runtime/versions/pre-human-writing-l2/SKILL.md`
+- pre_v2_backup_branch: `backup/pre-writer-v2-20260910`
+- pre_human_writing_backup: `skills/story-writer-runtime/versions/pre-human-writing-l2/SKILL.md`
