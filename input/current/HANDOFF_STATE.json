@@ -1,0 +1,21 @@
+{
+  "schema": "kq-writer-handoff/v2",
+  "project": "修仙：我能从未来带回一个结果",
+  "chapter": 1,
+  "run_type": "create",
+  "status": "awaiting_external_writer",
+  "writer_attempt": 1,
+  "delivery_mode": "CHECKPOINTED",
+  "delivery_phase": "FRONT",
+  "heading_literal": "# 第一章 我的未来，死在二十七天后",
+  "published_at": "2026-09-09T22:31:26Z",
+  "main_source_revision": "aa8513a1ffadef421fc8ae372902b2365e5253ea",
+  "writer_repo_base_commit": "501765dc2c55d105f33ea5ceb0917a1224bcd433",
+  "revision_base": null,
+  "checkpoint": null,
+  "expected_output": {
+    "draft": "output/current/segment.md",
+    "report": null
+  },
+  "note": "FIRST_DRAFT checkpoint FRONT 已发布。按当前用户要求停在正文生成前，不生成 segment.md。"
+}
