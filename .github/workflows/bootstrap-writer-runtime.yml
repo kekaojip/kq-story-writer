@@ -17,11 +17,11 @@ jobs:
         with:
           path: writer
 
-      - name: Checkout kq-story source
+      - name: Checkout pinned upstream source
         uses: actions/checkout@v4
         with:
-          repository: kekaojip/kq-story
-          ref: main
+          repository: zenstory-ai/oh-story-claudecode
+          ref: fde17546758c58ad4d3306ef93d0db8ad28f9f3c
           path: source
 
       - name: Copy exact V1 runtime assets
@@ -71,7 +71,7 @@ jobs:
             echo "No runtime asset changes."
             exit 0
           fi
-          git commit -m "sync exact writer runtime assets from kq-story"
+          git commit -m "sync exact writer runtime assets from pinned upstream"
           git push
 
-# bootstrap trigger: v1
+# bootstrap trigger: pinned-upstream-v1
