@@ -1,13 +1,14 @@
 ---
 name: human-writing-l2
-description: 独立的中文商业网文自然成文与局部去模型化 Skill。基于旧 human-writing 1.9.0-L2 锁定核心重做；第一稿从源头抑制过度完成，返修只处理明确病灶。当前不接入 Writer Runtime 主链。
+description: 中文商业网文自然成文与局部去模型化 Skill。基于旧 human-writing 1.9.0-L2 锁定核心重做；第一稿从源头抑制过度完成，返修只处理明确病灶。已接入 Writer Runtime 主链。
 ---
 
-# Human Writing L2｜Standalone v0.2
+# Human Writing L2｜v0.2
 
-> status: standalone
-> production_wired: false
-> framework_mutation: NONE
+> status: integrated
+> production_wired: true
+> integration_host: `skills/story-writer-runtime/SKILL.md`
+> framework_mutation: AUTHORIZED_BY_KQ
 > story_authority: NONE
 > canon_authority: NONE
 > tracking_authority: NONE
@@ -204,21 +205,26 @@ FLATTEN
 
 不把一个局部问题扩张成全章重写。
 
-## 7. 独立状态
+## 7. 生产接入状态
 
-当前 Skill 只是新增旁路能力：
-
-```text
-skills/human-writing-l2/**
-```
-
-它没有修改、覆盖或替代：
+当前 Skill 已由 KQ 明确批准接入：
 
 ```text
-skills/story-writer-runtime/**
-START_HERE.md
-Writer Runtime 主链
+skills/story-writer-runtime/SKILL.md
 ```
+
+生产路由：
+
+```text
+无 REVISION.md
+→ FIRST_DRAFT
+
+存在 REVISION.md
+→ 先读 defect
+→ 只有正文自然度 / 过度完成类问题才进入 LOCAL_REVISION
+```
+
+现有 `anti-ai-writing`、`banned-words` 与相关检测脚本继续保留，但默认作为按需诊断与局部修复辅助，不再要求每章写完自动全章清洗。
 
 v0.1 已冻结保存在：
 
@@ -226,4 +232,10 @@ v0.1 已冻结保存在：
 skills/human-writing-l2/versions/v0.1/**
 ```
 
-是否接入生产流程，需要 KQ 另行明确批准。
+Writer Runtime 接入前原版已冻结保存在：
+
+```text
+skills/story-writer-runtime/versions/pre-human-writing-l2/SKILL.md
+```
+
+本 Skill 仍没有剧情、Canon、Tracking 或主仓库修改权限。
