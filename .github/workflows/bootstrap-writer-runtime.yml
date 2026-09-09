@@ -73,3 +73,5 @@ jobs:
           fi
           git commit -m "sync exact writer runtime assets from kq-story"
           git push
+
+# bootstrap trigger: v1
