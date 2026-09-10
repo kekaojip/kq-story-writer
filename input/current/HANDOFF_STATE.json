@@ -8,14 +8,14 @@
   "delivery_mode": "CHECKPOINTED",
   "delivery_phase": "FRONT",
   "heading_literal": "# 第一章 我的未来，死在二十七天后",
-  "published_at": "2026-09-09T22:31:26Z",
-  "main_source_revision": "aa8513a1ffadef421fc8ae372902b2365e5253ea",
-  "writer_repo_base_commit": "501765dc2c55d105f33ea5ceb0917a1224bcd433",
+  "published_at": "2026-09-10T04:52:00Z",
+  "main_source_revision": "01b551bcd80fd1c106a8e768a58032a4d69b1d67",
+  "writer_repo_base_commit": "58bee10ccf19ec8f7469b6047c3c5fe145ba0d82",
   "revision_base": null,
   "checkpoint": null,
   "expected_output": {
     "draft": "output/current/segment.md",
     "report": null
   },
-  "note": "FIRST_DRAFT checkpoint FRONT 已发布。按当前用户要求停在正文生成前，不生成 segment.md。"
+  "note": "Chapter 1 FIRST_DRAFT workspace revalidated under the current two-AI hard gate. Main stops here and must not generate segment.md or draft.md."
 }
