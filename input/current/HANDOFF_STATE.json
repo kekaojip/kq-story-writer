@@ -3,38 +3,17 @@
   "project": "修仙：我能从未来带回一个结果",
   "chapter": 1,
   "run_type": "create",
-  "status": "archived",
+  "status": "awaiting_external_writer",
   "writer_attempt": 1,
   "delivery_mode": "CHECKPOINTED",
-  "delivery_phase": "COMPLETE",
+  "delivery_phase": "FRONT",
   "heading_literal": "# 第一章 我的未来，死在二十七天后",
-  "published_at": "2026-09-10T05:18:47Z",
-  "main_source_revision": "01b551bcd80fd1c106a8e768a58032a4d69b1d67",
-  "writer_repo_base_commit": "b7767f5157312ffb6ac418b0a67f292cb577fb77",
+  "main_source_revision": "1125f017144e25ade8bfe3b00d29f8682c5134c6",
+  "writer_repo_base_commit": "586dc942f06b96cf7c68143cfa3e77bcc844ca8b",
   "revision_base": null,
-  "checkpoint": {
-    "actual": 1472,
-    "metric": "visible_chars_v1",
-    "remaining_user_range": "1248-2208",
-    "front_completed_scope": [
-      "矿役名单出现林砚名字并确认三日后生效",
-      "核对轮转底册确认顺位至少提前一个批次但不锁定幕后者",
-      "确认炼气四层免强制矿役与现实二层末段的硬缺口",
-      "核算三日、灵石、贡献、药钱与人情后确认常规路线无解"
-    ],
-    "remaining_scope": [
-      "问果第一次开启并只展示本章批准的四条基础规则",
-      "进入最多九十日的真实未来分支并按原命运进入黑石矿",
-      "未来中真实达到炼气四层",
-      "第二十七日死于矿难与地底妖虫混乱",
-      "多个合法结果结算并由林砚亲自比较杠杆",
-      "放弃灵石与模糊矿区情报并唯一选择炼气四层",
-      "保持 segment.md 原文为冻结前缀，续写至现实炼气四层成立并立即停笔"
-    ]
-  },
+  "checkpoint": null,
   "expected_output": {
-    "draft": "output/current/draft.md",
-    "report": "output/current/report.json"
+    "segment": "output/current/segment.md"
   },
-  "note": "Chapter 1 archived after Main PASS. Final prose is in 我能从未来带回一个结果/正文/第001章_我的未来，死在二十七天后.md; Tracking state_revision is 1; archive manifest is archive/chapter-001/MANIFEST.md. Hot output files are being cleared per archive protocol."
+  "note": "Fresh Chapter 1 regeneration after universal natural-Chinese framework repair. Previous accepted prose has been rolled back from Main. Old archive/chapter-001 is historical only and is not an active input."
 }
