@@ -3,7 +3,7 @@
   "project": "修仙：我能从未来带回一个结果",
   "chapter": 1,
   "run_type": "create",
-  "status": "awaiting_external_writer",
+  "status": "accepted",
   "writer_attempt": 1,
   "delivery_mode": "CHECKPOINTED",
   "delivery_phase": "COMPLETE",
@@ -36,5 +36,5 @@
     "draft": "output/current/draft.md",
     "report": "output/current/report.json"
   },
-  "note": "MIDPOINT checkpoint complete. Existing output/current/segment.md is a frozen prose prefix and must remain byte-for-byte unchanged in the final draft; Writer must only continue the remaining approved scope. Main stops here and must not generate prose."
+  "note": "Main review PASS. Final draft accepted into main project at 我能从未来带回一个结果/正文/第001章_我的未来，死在二十七天后.md; Tracking committed through chapter 1 at state_revision 1. Archive manifest and hot-area cleanup pending."
 }
