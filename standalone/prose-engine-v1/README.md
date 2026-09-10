@@ -17,269 +17,266 @@ path: standalone/prose-engine-v1/
 
 这里只研究**字怎么写好**。
 
-不研究：
+不研究选题、大纲、爽点、世界观、Tracking、商业运营或 AI 检测率。
 
-- 选题；
-- 大纲；
-- 爽点设计；
-- 世界观；
-- Tracking；
-- 商业运营；
-- AI 检测率。
+## 核心判断
 
-## 为什么重新单独做
+旧式 AI 小说系统很容易把精力放在禁词、AI pattern、短句比例和多轮润色上。
 
-旧式 AI 小说系统很容易把精力放在：
+这些只能减少表面问题，不能稳定告诉 Writer：
 
-- 禁词；
-- 不能跑剧情；
-- 不能解释过头；
-- 不能用破折号；
-- 各类 AI pattern detector。
+- 人物此刻先注意什么；
+- 旁白什么时候该靠近人物；
+- 一句普通中文怎么自然接到下一句；
+- 对白怎么像人在做事；
+- 哪些地方应该一句带过；
+- 真人 Voice 到底体现在哪些反复选择里。
 
-这些是护栏，能让稿子少犯病，却不能告诉模型“一个真人小说作者在这里到底会怎么落字”。
+Prose Engine V1 因此只保留正向正文机制。
 
-Prose Engine V1 的核心方向改成**正向正文生成**：
+## 正常 WRITE
 
-1. 真人 Voice 是声音证据。
-2. 人物注意力决定叙述顺序。
-3. 叙事距离必须随场景移动。
-4. 中文先服从母语自然搭配。
-5. 句子和段落靠信息运动形成节奏，不靠标点技巧。
-6. 对白是人物做事，不是作者发设定。
-7. 大量普通句负责运输，重点句才有力量。
-8. Blind Reader 只看真实阅读体验。
-9. 长期学习只来自用户接受和修改，不来自 AI 自己的草稿。
+```text
+PROSE_PACKET
+  ↓
+Context Compiler
+  ↓
+WRITER_CONTEXT
+  + WRITE_CORE
+  + ACTIVE_VOICE_CONTEXT（可空）
+  ↓
+First Draft
+  ↓
+Blind Reader
+  ↓
+REPAIR_PACKET（仅有真实 finding 时）
+  ↓
+One Local Repair
+  ↓
+Final Prose
+```
 
-## 三个运行模式
+### 第一稿只写，不审
+
+Writer 不边写边扮演 Reviewer。
+
+第一稿运行时主要是：
+
+- 当前故事事实；
+- POV 当前意识；
+- 自然中文核心；
+- 少量真人 Voice 证据。
+
+研究资料、完整大纲、完整 Voice Profile、审稿报告都不进入默认 Writer 上下文。
+
+### Blind Reader 与 Repair 分离
+
+Blind Reader 没有改稿权，只报告真实阅读摩擦。
+
+Repair 只能拿到最小 `REPAIR_PACKET`，最多一次局部修改。
+
+目标不是“整体更漂亮”，而是让一个具体摩擦消失，同时不破坏已经成立的部分。
+
+## 三个正式模式
 
 ### WRITE
 
-`PROSE_PACKET → Voice Resolve → Lived Draft → Blind Reader → One Repair → Final Prose`
-
-只写正文。
+写当前正文。
 
 ### DISTILL_VOICE
 
 `Approved Human Prose → Contrastive Distillation → VOICE_PROFILE + Anchor Index`
 
-只学习真人声音。
+只学习真人声音，不写新剧情。
 
 ### LEARN_FROM_EDIT
 
-`AI Before + Human After → Significant Diff → Voice Update Proposal`
+`AI Before + Human Approved After → Language-choice Diff → Voice Update Proposal`
 
 只从真实修改学习。
 
-详细见：
+详细见 `architecture/RUN_MODES.md`。
 
-`architecture/RUN_MODES.md`
+## Truth、Register、Voice 分开
 
-## 核心架构
+### Truth
+
+`PROSE_PACKET` 只负责：
+
+- POV；
+- 当前场景；
+- 必须发生；
+- 不能发生；
+- 人物知道/不知道什么；
+- end state；
+- stop point。
+
+策划术语不能成为正文语言。
+
+### Register
+
+`genre != register`。
+
+修仙、玄幻、古代只决定必要题材词，不能自动把普通叙述和对白变成半文半白或“古风仙侠腔”。
+
+Register 只有两种合法来源：
+
+1. 用户明确指定；
+2. approved Voice evidence。
+
+### Voice
+
+声音证据不是一个“克制、短句、网文感”的形容词列表。
+
+它来自真人或用户真正认可的正文选择。
+
+证据强度默认：
 
 ```text
-Approved Human Corpus
-       │
-       ▼
-DISTILL_VOICE ──► VOICE_PROFILE + Anchor Index
-                         │
-                         ▼
-PROSE_PACKET ──► Scene Frame ──► Voice Resolve
-                                  │
-                                  ▼
-                              Lived Draft
-                                  │
-                                  ▼
-                             Blind Reader
-                                  │
-                                  ▼
-                           One Local Repair
-                                  │
-                                  ▼
-                              FINAL PROSE
-                                  │
-                      human accept / edit
-                                  │
-                                  ▼
-                           LEARN_FROM_EDIT
+user_correction > user_written / human_reference > accepted_project
 ```
 
-完整图见：
+`accepted_project` 主要服务项目连续性，不能因为“没被退稿”就自动升级成全局作者偏好。
 
-`architecture/PIPELINE.md`
+## 真人 Anchor
 
-## 关键设计
-
-### 1. Truth 与 Voice 分离
-
-`PROSE_PACKET` 负责“不能写错什么”。
-
-`VOICE_PROFILE` 负责“这种文字通常怎么说”。
-
-大纲措辞、策划术语永远不是 Voice。
-
-### 2. Voice 三层证据
+每次生成只召回少量功能相近 anchor。
 
 优先级：
 
-```text
-Correction Voice
-    > Project Voice
-    > Author Voice
-```
+1. 当前语言功能；
+2. 互动结构；
+3. 叙事距离；
+4. prose mode；
+5. Correction / Project Voice；
+6. 题材与内容相似。
 
-- Correction Voice：用户亲手改过并认可的正文。
-- Project Voice：本项目正式接受正文。
-- Author Voice：用户自己的作品或明确批准的真人母本。
+所以“收到坏消息后确认”可以跨题材召回。
 
-Raw AI draft 永远不能成为正向声音源。
+“都是修仙”本身不是强匹配。
 
-### 3. 不是只给“风格总结”，还要给真人 Anchor
+Anchor 学：
 
-每次生成只取：
+- 句子怎么运动；
+- 人物声音怎么进入；
+- 信息在哪停；
+- 哪里故意写普通。
 
-- 3-5 条 active voice traits；
-- 2-4 个功能相近的真人 prose anchors；
-- 0-2 个反复 drift warning。
+不借剧情、专名、比喻或原句。
 
-Anchor 优先按“当前场景要完成什么语言功能”召回，不按题材专名硬匹配。
-
-### 4. Contrastive Voice Distillation
+## Contrastive Voice Distillation
 
 不直接对母本说“总结一下文风”。
 
-默认流程：
+默认：
 
 ```text
 Human Sample
   → Semantic Skeleton
-  → 同语义 Neutral Baseline
+  → Neutral Baseline
   → Human vs Baseline Contrast
   → Claim + Evidence
-  → 跨样本聚合
-  → Domain / Character / Scene-Type Filter
+  → Cross-sample Clustering
+  → Scope / Domain Filter
   → Voice Profile
 ```
 
-这样更容易把“作者怎么写”从“这段发生了什么”中剥离出来。
+这样尽量把“怎么写”从“写了什么”中剥离出来。
 
-### 5. 人物意识优先于作者逻辑
+## 正文底层原则
 
-正文不是：
+### 人物注意力优先
+
+不是：
 
 `背景 → 原因 → 风险 → 方案 → 结论`
 
-默认跟随：
+而是跟着人物实际经历移动。
 
-`刺激 → 当下判断/反应 → 动作/对白 → 现实反馈`
+人物可以只想到眼前一层，先做事，再回来判断。
 
-但每一拍不要求全部写完。
+### 叙事距离会动
 
-人物可以想一半、先做事、被打断、回头再判断。
+重要决定、危险、欲望、异常时允许靠近 POV；重复劳动、时间经过、物流信息可以拉远。
 
-### 6. 叙事距离会动
+### 中文先自然
 
-AI 很容易整章待在安全的中间距离。
+现代自然中文白话是默认地基。
 
-本模块明确允许：
+题材词可以专业或古老，普通动作、判断、对白不能为了“像小说”重新发明搭配。
 
-- 决定、危险、欲望、羞耻时靠近人物；
-- 转场、时间经过、重复劳动时拉远；
-- close POV 时让人物词汇进入旁白，少用“他意识到”做中介。
+### 普通句有价值
 
-### 7. 中文单独有底座
+大量句子只负责把读者送到下一拍。
 
-英文 fiction craft 不能自动保证中文自然。
+没有必要让每句话都变成金句、段尾落锤或可截图表达。
 
-`Chinese Prose Base` 单独约束：
+### 对白是互动
 
-- 现代书面白话；
-- 常见中文搭配；
-- 允许自然的“了、就、还、又、却”等语气/连接颗粒；
-- 不为题材感做旧普通句；
-- 不把自然中文压成电报；
-- 口语化不等于聊天化。
+人物在问、拒绝、试探、催促、掩饰、推责、顶嘴，而不是配合作者把设定说完。
 
-### 8. 句子节奏不是短句率
+### 细节有选择
 
-模块不使用：
+只在真正改变判断、人物、空间、风险、关系或下一动作时花细节。
 
-- 短句 X%；
-- 对白 X%；
-- 比喻每千字 X 次；
-- 每段 X 字。
+重复过程可以直接概括。
 
-分析可以统计，生成不按配额施工。
+## 解码策略
 
-句子运动来自：
+正文不是唯一正确答案任务。
 
-- 当前信息工作；
-- 注意对象变化；
-- 叙事距离；
-- 动作与判断接力；
-- 长短自然起伏。
+如果模型接口支持采样控制，Writer 不默认用纯 greedy / beam / temperature=0。
 
-### 9. Blind Reader 不知道作者意图
+但具体 temperature、top-p、min-p 等参数不写死在框架里，而放到具体模型适配层。
 
-Blind Reader 只能看正文和目标读者。
+分析器和 Blind Reader 偏稳定，Writer 允许适度语言选择空间。
 
-它判断：
-
-- Flow；
-- Presence；
-- Character Mind；
-- Language Pleasure；
-- Pull。
-
-必须同时记录 `keep`，避免返修把已经好的部分洗掉。
-
-只允许一次局部 repair，不无限优化一个 AI Judge。
+详细见 `architecture/DECODING_POLICY.md`。
 
 ## 文件结构
 
 ```text
 standalone/prose-engine-v1/
 ├── README.md
+├── MANIFEST.md
 ├── SKILL.md
 ├── architecture/
+│   ├── CONTEXT_COMPILER.md
+│   ├── DECODING_POLICY.md
 │   ├── MODEL_ROLES.md
 │   ├── PIPELINE.md
 │   └── RUN_MODES.md
+├── runtime/
+│   ├── WRITE_CORE.md
+│   ├── BLIND_READER_CORE.md
+│   └── LOCAL_REPAIR_CORE.md
 ├── specs/
 │   ├── PROSE_PACKET.md
 │   ├── PROSE_QUALITY.md
+│   ├── REPAIR_PACKET.md
 │   ├── VOICE_CORPUS.md
-│   └── VOICE_PROFILE.md
+│   ├── VOICE_PROFILE.md
+│   └── ACTIVE_VOICE_CONTEXT.md
 ├── references/
 │   ├── chinese-prose-base.md
 │   ├── sentence-and-paragraph-motion.md
 │   ├── scene-writing.md
+│   ├── detail-and-compression.md
 │   ├── character-consciousness.md
 │   ├── dialogue-and-handoffs.md
 │   ├── voice-system.md
 │   ├── voice-distillation.md
 │   ├── anchor-retrieval.md
+│   ├── voice-validation.md
+│   ├── learning-loop.md
 │   ├── prose-generation-loop.md
-│   ├── cold-reader.md
-│   └── learning-loop.md
+│   └── cold-reader.md
 └── research/
-    └── DESIGN_DECISIONS.md
+    ├── DESIGN_DECISIONS.md
+    └── EVALUATION_AND_DIVERSITY.md
 ```
 
 `research/` 永远不是运行时上下文。
-
-## 模型角色
-
-不写死一个模型。
-
-允许分别选择：
-
-- **Prose Writer**：看实际中文小说落字能力；
-- **Voice Analyst**：看细读、比较、归纳能力；
-- **Blind Reader**：最好独立模型或独立新上下文；
-- 可选 Line Reader：只处理明确局部语言摩擦。
-
-“最聪明的推理模型”不自动等于“最好的小说正文模型”。
 
 ## 当前状态
 
@@ -293,4 +290,4 @@ learns_from_raw_ai_draft: NO
 ai_detection_as_goal: NO
 ```
 
-下一阶段只有在模块本身设计成熟以后，才讨论如何接到任何外部生产系统。
+现在它仍然只是独立正文引擎设计，不接生产链。
