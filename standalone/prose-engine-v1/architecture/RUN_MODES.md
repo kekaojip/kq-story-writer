@@ -2,31 +2,63 @@
 
 Prose Engine 只提供三个正式模式。
 
-它们彼此分开，避免“边写边分析边学习”把上下文搅成一锅。
+它们彼此分开，避免“边写边分析边学习”把上下文搅在一起。
 
 ## 1. WRITE
 
 ### 输入
 
 - `PROSE_PACKET`
-- 可选 `VOICE_PROFILE`
-- 可选召回的 approved anchors
+- 可选长期 Voice 数据
+- 可选 previous accepted prose tail
 
-### 任务
+### 编译
 
-生成当前场景正文。
+先由 `architecture/CONTEXT_COMPILER.md` 生成：
 
-### 读取
+- `WRITER_CONTEXT`
+- `ACTIVE_VOICE_CONTEXT`（可空）
 
-- Chinese Prose Base
-- Sentence & Paragraph Motion
-- Scene Writing
-- Character Consciousness
-- Dialogue & Handoffs
-- Voice System
-- Anchor Retrieval
-- Prose Generation Loop
-- Blind Reader
+Writer 不直接读取完整 Voice Profile、整本母本或完整大纲。
+
+### 第一稿读取
+
+默认只读：
+
+1. `WRITER_CONTEXT`
+2. `runtime/WRITE_CORE.md`
+3. `ACTIVE_VOICE_CONTEXT`（存在时）
+4. 必要 previous prose tail
+
+**不默认读取全部 references。**
+
+只有出现明确病灶时，才按 `SKILL.md` progressive disclosure 路由一个对应 reference。
+
+### 第一稿任务
+
+只生成当前场景正文。
+
+第一稿不同时扮演 Reviewer，不边写边评分，也不更新 Voice。
+
+### Blind Reader
+
+正文完成后独立运行：
+
+- `runtime/BLIND_READER_CORE.md`
+- 当前正文
+- 一句目标读者
+
+Blind Reader 不看到 PROSE_PACKET、Voice、作者意图。
+
+### Repair
+
+只有 Blind Reader 出现真实 finding 时：
+
+1. 编译 `REPAIR_PACKET`
+2. 读取 `runtime/LOCAL_REPAIR_CORE.md`
+3. 执行一次局部返修
+
+没有 finding 就直接接受当前正文层结果。
 
 ### 禁止
 
@@ -34,14 +66,20 @@ Prose Engine 只提供三个正式模式。
 - 不分析母本；
 - 不把当前 raw draft 加入语料；
 - 不设计下一段剧情；
-- 不展示内部 Scene Frame。
+- 不展示内部 Context Compiler 产物；
+- 不全文 humanize；
+- 不进行多轮 Judge 优化。
 
 ### 输出
 
-- `draft.md`
-- `blind_reader.md`
+运行内部可以存在：
 
-最终对用户只交正文，除非调用者明确要诊断。
+- draft
+- blind reader findings
+- repair packet
+- repaired draft
+
+对外默认只交最终正文，除非调用者明确要求诊断。
 
 ## 2. DISTILL_VOICE
 
@@ -57,10 +95,11 @@ Prose Engine 只提供三个正式模式。
 
 ### 读取
 
-- Voice Distillation
-- Voice System
-- VOICE_CORPUS contract
-- VOICE_PROFILE contract
+- `references/voice-distillation.md`
+- `references/voice-system.md`
+- `references/voice-validation.md`
+- `specs/VOICE_CORPUS.md`
+- `specs/VOICE_PROFILE.md`
 
 ### 方法
 
@@ -78,17 +117,16 @@ Prose Engine 只提供三个正式模式。
 
 ### 输出
 
-- `voice_profile.yaml`
-- `anchor_index.yaml`
-- `confidence_notes.md`
+- Voice Profile
+- Anchor Index
+- confidence notes
 
 ## 3. LEARN_FROM_EDIT
 
 ### 输入
 
 - AI before
-- 用户/作者 after
-- 用户是否明确认可
+- 用户/作者 approved after
 - 当前 scope
 - 可选已有 `VOICE_PROFILE`
 
@@ -98,9 +136,9 @@ Prose Engine 只提供三个正式模式。
 
 ### 读取
 
-- Learning Loop
-- Voice System
-- VOICE_PROFILE contract
+- `references/learning-loop.md`
+- `references/voice-system.md`
+- `specs/VOICE_PROFILE.md`
 
 ### 方法
 
@@ -143,8 +181,6 @@ voice_update_proposals:
 特别禁止：
 
 `WRITE → AI 自己评价不错 → 自动 LEARN → 把自己的稿当 Voice`
-
-这会制造自我污染。
 
 允许的闭环是：
 
