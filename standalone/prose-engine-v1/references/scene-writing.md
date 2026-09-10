@@ -6,7 +6,7 @@
 
 这个协议不负责决定发生什么，只负责让已经确定的内容以小说方式落地。
 
-WRITE 模式使用本协议时，**同时读取 `sentence-and-paragraph-motion.md`**。本文件管场景如何向前发生，后者管中文句子与段落如何把这种推进自然地送给读者。
+WRITE 模式使用本协议时，**同时读取 `sentence-and-paragraph-motion.md` 与 `detail-and-compression.md`**。本文件管场景如何向前发生，前者管中文句子与段落怎么运动，后者管哪些东西值得展开、哪些应该压缩过去。
 
 ## 第一步：找当前抓手
 
