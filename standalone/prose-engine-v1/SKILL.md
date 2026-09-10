@@ -12,37 +12,44 @@ purpose: human-like Chinese fiction prose generation from approved story semanti
 
 不负责剧情规划、世界观、伏笔、Tracking、商业分析或 AI 检测率。
 
-## 运行原则
+## 总原则
 
-这个 Skill 只做路由，不把所有写作方法一次塞给 Writer。
+这个 Skill 只做路由，不把整套写作方法一次塞给 Writer。
 
 详细 references 使用 progressive disclosure：
 
-- 正常 WRITE 只加载一个紧凑写作核心 + 当前场景包 + 少量 Voice Context。
-- 只有出现明确问题时，才读取对应专项 reference。
-- DISTILL_VOICE 与 LEARN_FROM_EDIT 是独立模式，不和 WRITE 混跑。
-
-详细模式见 `architecture/RUN_MODES.md`。
+- 正常 WRITE 只加载最小运行上下文；
+- 只有出现明确病灶时才读取对应专项 reference；
+- DISTILL_VOICE 与 LEARN_FROM_EDIT 独立运行，不和 WRITE 混跑；
+- `research/` 永远不进入正文运行时。
 
 ## 模式
 
 ### WRITE
 
-默认模式。
+默认路径：
 
-必读：
+```text
+PROSE_PACKET
+  ↓
+Context Compiler
+  ↓
+WRITER_CONTEXT
+  + runtime/WRITE_CORE.md
+  + ACTIVE_VOICE_CONTEXT（可空）
+  ↓
+Draft
+  ↓
+runtime/BLIND_READER_CORE.md
+  ↓
+REPAIR_PACKET（仅有真实 finding 时）
+  ↓
+runtime/LOCAL_REPAIR_CORE.md
+  ↓
+Final Prose
+```
 
-1. 当前 `PROSE_PACKET`。
-2. `runtime/WRITE_CORE.md`。
-3. 当前 `ACTIVE_VOICE_CONTEXT`，如果存在。
-
-然后按：
-
-`Semantic Wash → Scene Frame → Lived Draft → Blind Reader → One Local Repair`
-
-执行。
-
-正常第一稿**不要默认把 references/ 全部读一遍**。
+第一稿不要默认把 `references/` 全部读一遍。
 
 ### DISTILL_VOICE
 
@@ -52,6 +59,7 @@ purpose: human-like Chinese fiction prose generation from approved story semanti
 
 - `references/voice-distillation.md`
 - `references/voice-system.md`
+- `references/voice-validation.md`
 - `specs/VOICE_CORPUS.md`
 - `specs/VOICE_PROFILE.md`
 
@@ -69,48 +77,49 @@ purpose: human-like Chinese fiction prose generation from approved story semanti
 
 只生成 Voice 更新候选，不把一次修改直接写成永久规则。
 
-## WRITE 的专项路由
+## Context Compiler
+
+见 `architecture/CONTEXT_COMPILER.md`。
+
+它负责：
+
+- 把策划词洗回事实；
+- 只保留当前场景需要的信息；
+- 编译少量 Voice traits / anchors；
+- 防止完整大纲、研究说明、审稿报告污染 Writer。
+
+Writer 不直接读取完整 Voice Profile 或整本母本。
+
+## WRITE 专项路由
 
 默认先靠 `runtime/WRITE_CORE.md` 完成。
 
-只有发生以下情况才加读详细 reference：
+只有命中具体问题时才加读：
 
 ### 中文搭配 / 句子本身不顺
-
-读取：
 
 - `references/chinese-prose-base.md`
 - `references/sentence-and-paragraph-motion.md`
 
 ### 人物像分析机器人 / 叙事离人物太远
 
-读取：
-
 - `references/character-consciousness.md`
 - `references/scene-writing.md`
 
-### 对白像信息广播 / 两个人太配合
-
-读取：
+### 对白像信息广播
 
 - `references/dialogue-and-handoffs.md`
 
-### 细节过多 / 身体反应堆叠 / 该快的地方写太慢
-
-读取：
+### 细节过多 / 该快的地方写太慢
 
 - `references/detail-and-compression.md`
 
-### Voice 漂移 / 不知道该召回什么真人片段
-
-读取：
+### Voice 漂移 / anchor 召回不对
 
 - `references/voice-system.md`
 - `references/anchor-retrieval.md`
 
 ### 整段生成方式失控
-
-读取：
 
 - `references/prose-generation-loop.md`
 
@@ -131,7 +140,16 @@ purpose: human-like Chinese fiction prose generation from approved story semanti
 - 场景结束状态；
 - 精确停笔点。
 
-输入里的策划词只传意思，不是正文措辞样本。
+### Register Firewall
+
+`genre` 不能自动推导正文语体。
+
+修仙、玄幻、古代只决定必要题材词，不自动把普通叙述和对白古老化。
+
+正文 register 只有两种合法来源：
+
+1. 用户明确指定；
+2. approved Voice evidence。
 
 ## Voice
 
@@ -142,42 +160,33 @@ purpose: human-like Chinese fiction prose generation from approved story semanti
 生成时只允许一个紧凑 `ACTIVE_VOICE_CONTEXT`：
 
 - 3-5 条 active traits；
-- 2-4 个 approved human anchors；
+- 2-4 个功能相近 approved anchors；
 - 0-2 条当前 drift warnings。
+
+Anchor 先按**语言功能/互动功能**匹配，题材相似最后考虑。
 
 Raw AI draft、被拒绝稿、outline、analysis、review 文本永远不能成为正向 Voice。
 
-没有 Voice 时使用自然中文基线，不虚构作者风格。
+没有 Voice 时使用自然现代中文基线，不虚构作者风格。
 
-## Blind Reader
+## Blind Reader 与 Repair
 
-完整段落/场景初稿后执行一次盲读。
+Blind Reader 使用 `runtime/BLIND_READER_CORE.md`。
 
-Blind Reader 只能看到：
+它只能看到正文和目标读者，看不到剧情设计与 Writer 自检。
 
-- 正文；
-- 目标读者；
-- 极少数阅读必需的专名说明。
+默认最多 3 条 finding，硬上限 5 条。
 
-看不到：
+有真实 finding 时编译 `specs/REPAIR_PACKET.md`，再交给 `runtime/LOCAL_REPAIR_CORE.md`。
 
-- PROSE_PACKET；
-- Scene Frame；
-- Voice Profile；
-- 作者意图；
-- Writer 自检。
+Repair：
 
-它只判断：
-
-- Flow；
-- Presence；
-- Character Mind；
-- Language Pleasure；
-- Pull。
-
-详细规则见 `references/cold-reader.md`。
-
-最多一次局部返修，不追求 finding=0。
+- 最多一轮；
+- 只修局部；
+- 必须保护 `keep`；
+- 不新增剧情；
+- 不全文 humanize；
+- 不顺手重写健康段落。
 
 ## 质量底线
 
@@ -202,20 +211,6 @@ Blind Reader 只能看到：
 - Raw AI draft 自我学习；
 - 把整个母本塞进上下文；
 - 把整套 Voice Profile 每章全量加载。
-
-## 模型角色
-
-见 `architecture/MODEL_ROLES.md`。
-
-允许 Writer、Voice Analyst、Blind Reader 使用不同模型。
-
-框架不写死具体模型。
-
-## 研究文档
-
-`research/` 只解释为什么这么设计。
-
-**运行时禁止加载 research 文件。**
 
 ## 当前状态
 
