@@ -15,9 +15,9 @@ Voice 是作者在不同场景里反复做出的**语言选择**：句子怎么�
 - `references/voice-distillation.md`
 - `references/anchor-retrieval.md`
 
-## 三层声音
+## 三类声音来源
 
-### 1. Author Voice
+### Author Voice
 
 跨项目、变化慢。
 
@@ -29,15 +29,17 @@ Voice 是作者在不同场景里反复做出的**语言选择**：句子怎么�
 
 回答：这个用户总体喜欢什么样的中文小说声音。
 
-### 2. Project Voice
+### Project Voice
 
 当前作品内部形成的声音。
 
-只从正式接受正文积累。
+来自当前项目正式接受正文，但证据可靠度取决于来源。
 
-回答：同一套底层偏好进入这本书以后，具体怎样变化。
+它主要回答：同一套底层偏好进入这本书以后，具体怎样变化。
 
-### 3. Correction Voice
+`accepted_project` 本身只是弱到中等正向证据，不能因为“没被退稿”就自动创建新的全局作者偏好。
+
+### Correction Voice
 
 用户对 AI 正文做出的明确修改。
 
@@ -45,11 +47,49 @@ Voice 是作者在不同场景里反复做出的**语言选择**：句子怎么�
 
 回答：模型当前最容易写偏在哪里，用户真正会怎样落字。
 
-冲突优先级：
+## 不使用单一总优先级
 
-`Correction Voice > Project Voice > Author Voice`
+Voice 选择使用两条独立轴。
 
-但先判断 scope。战斗场景习惯不应自动覆盖所有场景，某个角色的说话方式也不等于全书旁白。
+### A. Evidence Reliability
+
+默认：
+
+```text
+user_correction > user_written / human_reference > accepted_project
+```
+
+冲突时，证据可靠度优先。
+
+例如：
+
+- 当前项目某段 accepted AI prose 喜欢写“他意识到”；
+- 但用户多次亲手把它改成直接判断。
+
+则 Correction evidence 无条件覆盖这个项目习惯。
+
+### B. Scope Relevance
+
+在不与高可靠证据冲突的前提下，越接近当前任务越优先：
+
+```text
+same character / same project / same scene-function > cross-project general
+```
+
+Project Voice 因此仍然很有价值，但它负责**具体化**强证据，而不是推翻强证据。
+
+### Final Rule
+
+```text
+先过可靠度冲突检查
+  ↓
+再按当前 scope / function 选择最相关证据
+```
+
+这样同时避免：
+
+- 跨项目母本压死本书实际声线；
+- AI 项目正文反过来污染真人 Voice。
 
 ## Voice 的七个核心维度
 
@@ -140,22 +180,28 @@ Anchor 告诉 Writer：这种场景里，真人正文的**运动方式**是什�
 
 召回优先：
 
-1. 功能相似；
-2. prose mode 相似；
-3. project / correction 相关；
-4. narrative distance 相似；
-5. 内容与题材相似。
+1. language function；
+2. interaction shape；
+3. narrative distance / prose mode；
+4. evidence reliability；
+5. current scope relevance；
+6. content / genre similarity。
 
 学习运动，不复制词面。
 
 ## 学习边界
 
-### 正向来源
+### 强正向来源
 
-- 用户明确批准的真人样本；
-- 用户自己的作品；
 - 用户亲手修改并确认的版本；
+- 用户明确批准的真人样本；
+- 用户自己的作品。
+
+### 项目连续性来源
+
 - 当前项目正式接受正文。
+
+它可以支持项目声线连续，但不能单独创建新的 global trait。
 
 ### 绝不成为正向来源
 
