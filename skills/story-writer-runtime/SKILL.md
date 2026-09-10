@@ -21,7 +21,9 @@
 
 `EXECUTION_CARD.md` 不是第二份细纲，也不是新的真相源。它只把主模型已经批准的悬念、战斗、钩子、反转、情绪和对白执行意图压缩给 Writer。若它与 00-04、人物或规则文件冲突，以更高层输入为准，并把冲突写入 `report.json.uncertain_points`。
 
-在第 8 层内部，`skills/human-writing-l2/` 负责**正文行为策略**：控制解释、认知、对白、段落和局部语义写到哪里算够；本 Skill 的其他 references 与 `references/execution/` 负责提供题材、文风、对话和当前章专项执行技法。其他通用 reference 不得用固定配额、统一清洗或模板化要求覆盖 Human Writing L2 的完成度波动原则。当前任务、本书明确文风和已选 benchmark 的明确要求仍按上面的权威顺序优先。
+`EXECUTION_CARD.md` 中的分析词、策划词与方法词只传递语义，不是正文措辞样本。Writer 必须理解意思后重新使用自然中文成文，不得把卡片里的抽象词、比喻框架或项目化表达继承为人物/叙述者声线。
+
+在第 8 层内部，`skills/human-writing-l2/` 负责**正文行为策略与自然中文底线**：先保证中文搭配自然、第一次能顺读，再控制解释、认知、对白、段落和局部语义写到哪里算够；本 Skill 的其他 references 与 `references/execution/` 负责提供题材、文风、对话和当前章专项执行技法。其他通用 reference 不得用固定配额、统一清洗或模板化要求覆盖 Human Writing L2。当前任务、本书明确文风和已选 benchmark 的明确要求仍按上面的权威顺序优先。
 
 ## 启动顺序
 
@@ -45,7 +47,7 @@
    - 没有对应模块就不加载对应专项切片，也不得自行补造模块。
 9. 按任务需要读取本 Skill 的其他 references。
 10. 写正文候选到 `output/current/draft.md`。
-11. 做正文层自检；自检优先核对 Truth / Boundary、必须情节点、人物知识、停笔点、格式与输出契约，不自动触发全章去 AI 清洗。
+11. 做正文层自检；自检优先核对自然中文底线、Truth / Boundary、必须情节点、人物知识、停笔点、格式与输出契约，不自动触发全章去 AI 清洗。
 12. 对已落盘候选运行“确定性只读预检”，记录结果但不为了清 flag 自动改全文。
 13. 写或更新 `output/current/report.json`。
 
@@ -63,7 +65,7 @@
 - 必须真正落到正文的批准内容；
 - 特别禁止 Writer 自行补造的内容。
 
-它不能覆盖细纲、状态与边界。
+它不能覆盖细纲、状态与边界，也不能成为正文措辞来源。
 
 ### 专项模块
 
@@ -87,7 +89,15 @@ execution slice 永远只有表达权，没有剧情设计权。
 - `skills/human-writing-l2/references/web-fiction.md`
 - `skills/human-writing-l2/references/positive-writing.md`
 
-第一稿重点不是“写完再去 AI”，而是从源头避免：
+其中 `l2-core.md` 的 `Natural Chinese Floor` 是所有题材的基础语言门槛：
+
+- 语义正确不等于中文自然；
+- 常见中文搭配优先于生造、诗化压缩和翻译式组合；
+- 题材专名可以有类型色彩，普通叙述不因题材自动古文化、公文化或论文式抽象化；
+- 普通顺口优先于精炼漂亮；
+- 自然白话不等于聊天腔，也不靠固定口语配额实现。
+
+在此基础上，第一稿还要从源头避免：
 
 - 连续漂亮闭合；
 - 新信息一次推演到底；
@@ -126,15 +136,16 @@ Human Writing L2 不替代题材、文风、对话和 craft reference。
 - `scripts/check-ai-patterns.js`
 - `scripts/check-degeneration.js`
 
-它们从“每章写完默认全章清洗”降为**按需诊断与局部修复辅助**。
+旧体系仍然**不恢复全章自动清洗**。`anti-ai-writing.md` / `banned-words.md` 继续作为按需诊断与局部修复参考；`check-ai-patterns.js` 则恢复为完整稿默认只读语言预检，只负责报告，不拥有改文权。
 
-默认 FIRST_DRAFT 不为清空这些文件或脚本的全部 flag 而改文。只有以下情况才优先调用：
+默认 FIRST_DRAFT 不为清空这些文件或脚本的全部 flag 而改文。以下情况可进一步读取 anti-ai references 做语境复核：
 
 - `00_TASK.md` 明确要求专项检查；
 - 上游 Reviewer / 作者指出具体 AI 表面病灶；
+- 默认 `language_lint` 出现需要人工解释的 blocking / advisory finding；
 - 某一局部出现明显高频模板、禁用词、重复结算或退化，需要辅助定位。
 
-诊断命中不等于必须修改；仍需回到上下文、角色、题材、文风和 Human Writing L2 判断。不得为了检测率进行全文同义词替换、全章人类化或统一声音。
+诊断命中不等于自动修改；仍需回到上下文、角色、题材、文风和 Human Writing L2 判断。不得为了检测率进行全文同义词替换、全章人类化或统一声音。
 
 ### `long-chapter-quality.md`
 
@@ -144,7 +155,9 @@ Human Writing L2 不替代题材、文风、对话和 craft reference。
 
 ## 确定性只读预检
 
-Writer 写出 `output/current/draft.md` 后，默认执行以下只读检查。**这些检查提供证据，不拥有自动改文权。**
+Writer 写出完整 `output/current/draft*.md` 后，默认执行以下只读检查。**这些检查提供证据，不拥有自动改文权。**
+
+CHECKPOINTED + FRONT 的 `segment.md` 不是完整稿，不执行正式 language lint；COMPLETE 或 ONE_SHOT 的完整正文、以及 revision 完整版本都执行。
 
 ### 1. 细纲照搬检测
 
@@ -185,9 +198,30 @@ python skills/story-writer-runtime/scripts/measure_draft.py \
 - 不因为 over 删除必须情节点；
 - 最终是否接受当前长度、修改目标或返修，由 Main 决定。
 
-### 4. AI pattern 检查不是默认第一稿清洗
+### 4. 默认语言 lint（只读）
 
-`check-ai-patterns.js` 继续保留，但 FIRST_DRAFT 默认不以清空全部 AI-style flag 为完成条件。只有任务、Reviewer 或明确 defect 需要时调用。
+完整正文默认运行：
+
+```bash
+node skills/story-writer-runtime/scripts/check-ai-patterns.js \
+  --check --json --fail-on=blocking \
+  output/current/draft.md
+```
+
+作用：报告确定性 AI 句式 / 标点风险与需要人工通读的语言读感提示，包括破折号、否定模板、抽象总结、比喻密度、解释链、过度压缩、低连接密度等现有规则。
+
+必须：
+
+- 所有 findings 写入或汇总到 `report.json.preflight.language_lint`；
+- 至少记录 `status`、`blocking_count`、`advisory_count` 和最短必要 summary；
+- blocking finding 不得被隐藏成 `clean`；
+- advisory 只是复核提示，不自动判定正文失败；
+- 本脚本无法判断所有“中文搭配自然度”，因此 `clean` 不等于中文自然度必然 PASS；
+- 不为清空 flag 自动改稿，不自动读取禁用词表逐项洗文，不做全章同义替换。
+
+### 5. AI pattern 检查不是默认第一稿清洗
+
+默认运行 `language_lint` 只恢复“体检”，不恢复旧版 global AI wash。若要根据 findings 修改正文，必须由当前 Writer 自检、Main / Reviewer 或作者明确指出具体病灶后，走局部返修或已批准 revision。
 
 ## 正文权限
 
@@ -220,6 +254,7 @@ python skills/story-writer-runtime/scripts/measure_draft.py \
 ## 写作原则
 
 - 细纲描述的是语义，不是正文句式。必须演成连续场景，禁止逐条翻译提纲。
+- 输入里的策划词只传递意思，不继承措辞；理解后丢弃分析层表达，再用自然中文重新成文。
 - 角色先做事，解释只在当前行动需要时出现。
 - 推理能通过行动验证时，先验证，再解释。
 - 情绪已有上下文支撑时，不追加无功能的眼神、呼吸、指尖、心跳等身体标签。
@@ -249,13 +284,18 @@ python skills/story-writer-runtime/scripts/measure_draft.py \
 - `references/execution/hook-execution.md`
 - `references/execution/reversal-execution.md`
 
+### 默认只读预检
+
+- `scripts/check-outline-copy.js`
+- `scripts/check-degeneration.js`
+- `scripts/measure_draft.py`
+- `scripts/check-ai-patterns.js`
+
 ### 按需诊断 / 局部修复
 
 - `references/anti-ai-writing.md`
 - `references/banned-words.md`
 - `references/long-chapter-quality.md`
-- `scripts/check-ai-patterns.js`
-- `scripts/check-degeneration.js`
 - `skills/human-writing-l2/references/local-revision.md`：仅 `LOCAL_REVISION`
 - `skills/human-writing-l2/references/diagnostic-guide.md`：需要定位表面规律时才读
 - `skills/human-writing-l2/scripts/check_prose.py`：只报警，不拥有改文权
@@ -291,7 +331,8 @@ python skills/story-writer-runtime/scripts/measure_draft.py \
   "preflight": {
     "outline_copy": {"status": "clean|findings|not_run", "summary": "..."},
     "degeneration": {"status": "clean|findings|not_run", "summary": "..."},
-    "wordcount": {"metric": "visible_chars_v1", "actual": 0, "status": "measured|internal_pass|borderline|under|over"}
+    "wordcount": {"metric": "visible_chars_v1", "actual": 0, "status": "measured|internal_pass|borderline|under|over"},
+    "language_lint": {"status": "clean|findings|not_run", "blocking_count": 0, "advisory_count": 0, "summary": "..."}
   }
 }
 ```
@@ -300,6 +341,7 @@ python skills/story-writer-runtime/scripts/measure_draft.py \
 - `uncertain_points`：输入之间有歧义但不至于阻塞写作时记录。
 - 所有数组为空是合法状态。
 - preflight finding 只是证据；除非它同时代表事实/边界偏离，否则不要伪装成 `new_facts`。
+- `language_lint.status=clean` 只表示现有脚本未命中，不替代 Main / Reviewer 的中文自然度语义审查。
 
 ## 修改模式
 
@@ -310,23 +352,25 @@ python skills/story-writer-runtime/scripts/measure_draft.py \
 3. 只修改明确指出的问题与其必要邻接句段。
 4. 不借修改机会重设计其他剧情。
 5. 判断本轮修订类型：
-   - 若问题属于过度解释、重复结算、完成度过齐、对白把意思说满、采访式问答、段落过度规整、局部模型腔等正文自然度问题：加载 `skills/human-writing-l2/SKILL.md` 的 `LOCAL_REVISION` 模式，只修命中区域。
+   - 若问题属于生造搭配、诗化压缩、翻译式组合、策划语言泄漏、过度解释、重复结算、完成度过齐、对白把意思说满、采访式问答、段落过度规整、局部模型腔等正文自然度问题：加载 `skills/human-writing-l2/SKILL.md` 的 `LOCAL_REVISION` 模式，只修命中区域。
    - 若问题属于名字、标点、格式、连续性、真值、信息边界或其他机械/事实问题：执行最小修复，不因为存在 `REVISION.md` 自动做 Human Writing 全章返修。
 6. `LOCAL_REVISION` 优先使用删、停、压缩、合并、局部重铸；不把局部问题扩张成全章重写。
 7. 旧 anti-ai references / scripts 只在当前 defect 需要辅助定位时调用；不得为清空 flag 顺手修改健康段落。
 8. 如果 REVISION 涉及悬念、战斗、钩子或反转执行，仍按当前 `EXECUTION_CARD` 对应模块加载 execution slice；不得借返修重新设计模块。
-9. 输出覆盖当前候选稿并更新 `report.json`，重新运行受影响的只读预检。
+9. 输出版本化候选并更新对应 report，重新运行受影响的只读预检，包括完整稿 `language_lint`。
 
 ## 接入状态
 
 Human Writing L2 与 Writer Runtime V2 execution layer 已由 KQ 明确批准接入。
 
 - human_writing_integration: `ENABLED`
+- natural_chinese_floor: `ENABLED`
 - execution_card: `ENABLED WHEN PRESENT`
 - execution_slices: `ENABLED BY MODULE`
 - first_draft_mode: `human-writing-l2/FIRST_DRAFT`
 - revision_mode: `targeted LOCAL_REVISION when applicable`
-- deterministic_preflight: `outline-copy + degeneration + wordcount`
+- deterministic_preflight: `outline-copy + degeneration + wordcount + language-lint`
+- language_lint: `DEFAULT READ-ONLY ON COMPLETE DRAFTS`
 - global_ai_wash: `DISABLED BY DEFAULT`
 - pre_v2_backup_branch: `backup/pre-writer-v2-20260910`
 - pre_human_writing_backup: `skills/story-writer-runtime/versions/pre-human-writing-l2/SKILL.md`
