@@ -37,6 +37,8 @@ HANDOFF_STATE.json
 
 Style Package 不得覆盖事实。
 
+若没有作者或本书明确的特殊语体覆盖，Writer 仍服从 Human Writing L2 的 `Natural Chinese Floor`：自然现代汉语是基础层，题材与 benchmark 只能在其上叠加，不能静默把普通叙述古文化、公文化、论文式抽象化或压成生造词组。
+
 ---
 
 ## 2. 不再跨仓解析文风
@@ -53,6 +55,8 @@ Writer 不读取主小说仓，也不自行查询主仓作者记忆。
 
 若任务要求特定风格但 05/06 缺失，且 00_TASK / benchmark 也不足以确定，不猜测，写入 `uncertain_points`；若会实质改变输出方向则阻塞。
 
+05/06 缺少本书个性偏好，不等于自然中文默认值失效。
+
 ---
 
 ## 3. FIRST_DRAFT 输出
@@ -65,7 +69,13 @@ Writer 不读取主小说仓，也不自行查询主仓作者记忆。
 
 详细规则见本文件第 11 节。
 
-保持现有 Human Writing L2 FIRST_DRAFT、execution slices 与只读 preflight 规则。
+保持现有 Human Writing L2 FIRST_DRAFT、execution slices 与只读 preflight 规则。完整 draft 的默认 preflight 包含：
+
+```text
+outline-copy + degeneration + wordcount + language-lint
+```
+
+`language-lint` 只读报告，不恢复 global AI wash，不拥有自动改文权。
 
 ---
 
@@ -206,6 +216,27 @@ python skills/story-writer-runtime/scripts/measure_draft.py \
 
 CHECKPOINTED 的 FRONT 不做正式全章 under/over 判定；Main 对 `segment.md` 使用主侧 checkpoint 计算剩余范围。完整 `draft*.md` 才进入最终字数状态。
 
+### 8.5 默认语言预检
+
+所有完整 `draft*.md` 默认运行：
+
+```bash
+node skills/story-writer-runtime/scripts/check-ai-patterns.js \
+  --check --json --fail-on=blocking \
+  <当前完整正文>
+```
+
+规则：
+
+- 这是 deterministic read-only preflight，不是自动修稿；
+- blocking / advisory 均写入当前 report 的 `preflight.language_lint`；
+- 至少记录 `status / blocking_count / advisory_count / summary`；
+- blocking 不得静默丢弃，advisory 不自动判失败；
+- `clean` 只代表现有脚本没有命中，不代表中文搭配语义审查自动 PASS；
+- 不为清 flag 触发全文同义替换、禁用词轮换或 global AI wash。
+
+CHECKPOINTED + FRONT 的 `segment.md` 不是完整章，不在 FRONT 阶段运行正式 language lint；COMPLETE 后对完整 `draft.md` 运行。
+
 ---
 
 ## 9. 输出契约
@@ -216,6 +247,7 @@ CHECKPOINTED 的 FRONT 不做正式全章 under/over 判定；Main 对 `segment.
 - report 放事实申报、deviation、uncertain points、preflight、revision metadata 与本补丁要求的审计字段。
 - 不把分析过程写入正文。
 - 不为消除 detector flag 自动全文改写。
+- 完整稿 report 必须包含 `preflight.language_lint`；若因工具不可用无法执行，必须明确 `status: not_run` 与原因，不能伪装成 clean。
 
 实际文件名以本文件第 3/5/11 节与 `HANDOFF_STATE.expected_output` 为准。
 
@@ -292,7 +324,7 @@ Writer 仍然先读取整章 Outline、Boundaries、Current State、Execution Ca
 - 若剩余空间很紧，优先减少重复解释和无新信息过渡，不得省略必须情节点或把场景改成提纲摘要；
 - 最终 `draft.md` 必须由原 segment 原文 + 连续后文组成。
 
-完整 draft 生成后，再执行正常 preflight 并写最终 `report.json`。
+完整 draft 生成后，再执行正常 preflight（包括 language lint）并写最终 `report.json`。
 
 ### 11.4 ONE_SHOT
 
@@ -302,7 +334,7 @@ Writer 仍然先读取整章 Outline、Boundaries、Current State、Execution Ca
 
 不生成 `segment.md`。
 
-Human Writing L2、execution slices、Truth Guard、Review 前置规则均不因 delivery mode 改变。
+Human Writing L2、execution slices、Truth Guard、Review 前置规则与完整稿只读 language lint 均不因 delivery mode 改变。
 
 ---
 
@@ -395,6 +427,23 @@ Revision 默认保持基线标题不变，除非 `REVISION.md` 明确要求改�
 
 Writer 仍禁止通过 proposed_additions 引入：新主线事件、新反转、新金手指规则、提前后续剧情、改变既定结果。
 
+### 13.5 language_lint
+
+完整稿 report 必须包含：
+
+```json
+"preflight": {
+  "language_lint": {
+    "status": "clean|findings|not_run",
+    "blocking_count": 0,
+    "advisory_count": 0,
+    "summary": "最短必要说明"
+  }
+}
+```
+
+如 findings 需要逐条上报，可附加最小必要数组；不要把长篇 detector 日志塞进 report。Main / Reviewer 根据原始正文和 findings 做最终语言裁决。
+
 ---
 
 ## 14. COMPRESS_ONCE
@@ -415,7 +464,7 @@ Writer 将其视为一次专项净删 revision。
 6. 不把场景压成摘要 / 提纲；
 7. 只执行这一轮，不自动再次 COMPRESS。
 
-完成后按普通版本化 revision 输出，并重新执行受影响 preflight / wordcount。
+完成后按普通版本化 revision 输出，并重新执行受影响 preflight / wordcount / language lint。
 
 如果仍然 `over`：
 
@@ -428,15 +477,19 @@ Writer 将其视为一次专项净删 revision。
 ## 15. 接入状态
 
 - style_package: `ENABLED`
+- natural_chinese_floor: `ENABLED VIA HUMAN WRITING L2`
 - revision_base: `REQUIRED`
 - versioned_revision_output: `ENABLED`
 - handoff_state: `ENABLED`
 - deterministic_wordcount: `TASK_FIRST`
+- deterministic_language_lint: `DEFAULT READ-ONLY ON COMPLETE DRAFTS`
+- global_ai_wash: `DISABLED BY DEFAULT`
 - delivery_mode: `CHECKPOINTED_DEFAULT / ONE_SHOT_SUPPORTED`
 - midpoint_checkpoint: `ENABLED`
 - heading_literal: `ENABLED`
 - report_outline_coverage: `ENABLED`
 - report_unwritten_feedback: `ENABLED`
+- report_language_lint: `ENABLED`
 - references_read: `ENABLED`
 - proposed_additions_structured: `ENABLED`
 - compress_once: `ENABLED`
