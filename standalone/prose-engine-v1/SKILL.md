@@ -153,9 +153,25 @@ Writer 不直接读取完整 Voice Profile 或整本母本。
 
 ## Voice
 
-声音证据优先级：
+Voice 不使用一条粗暴总优先级，而分成两条轴。
 
-`Correction Voice > Project Voice > Author Voice`
+### Evidence Reliability
+
+```text
+user_correction > user_written / human_reference > accepted_project
+```
+
+冲突时，可靠度高的证据优先。
+
+### Scope Relevance
+
+在不与高可靠证据冲突时：
+
+```text
+same character / same project / same scene-function > cross-project general
+```
+
+因此 Project Voice 用来具体化当前书的声音，但不能反过来覆盖用户亲改或真人母本中更可靠的证据。
 
 生成时只允许一个紧凑 `ACTIVE_VOICE_CONTEXT`：
 
@@ -187,6 +203,12 @@ Repair：
 - 不新增剧情；
 - 不全文 humanize；
 - 不顺手重写健康段落。
+
+## 解码
+
+方向见 `architecture/DECODING_POLICY.md`。
+
+Writer 可以保留适度语言选择空间，但具体 temperature、top-p、min-p 等参数属于模型适配层，不写死进正文核心。
 
 ## 质量底线
 
