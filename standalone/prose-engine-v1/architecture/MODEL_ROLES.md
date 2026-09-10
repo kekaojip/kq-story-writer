@@ -4,13 +4,13 @@
 
 Prose Engine 不假设“一个最强模型包办所有事情”。
 
-正文生成、文风蒸馏、盲读判断需要的能力不同。
+正文生成、文风蒸馏、盲读判断、局部返修需要的能力不同。
 
 ## Role 1：Prose Writer
 
 ### 任务
 
-根据 PROSE_PACKET + Active Voice Context 写正文。
+根据 `WRITER_CONTEXT + WRITE_CORE + Active Voice Context` 写正文。
 
 ### 最看重
 
@@ -74,7 +74,7 @@ Prose Engine 不假设“一个最强模型包办所有事情”。
 Blind Reader 不读取：
 
 - Outline；
-- Scene Frame；
+- PROSE_PACKET；
 - Voice Profile；
 - Writer 的生成说明；
 - 正文原本想表达的语义。
@@ -83,13 +83,40 @@ Blind Reader 不读取：
 
 原因：同一个生成器知道自己为什么写那句话，更容易替自己辩护。
 
-## Role 4：Optional Line Reader
+## Role 4：Local Repair
+
+### 任务
+
+根据 `REPAIR_PACKET` 只修指定阅读摩擦。
+
+### 最看重
+
+- 中文局部改写；
+- 保持前后声线；
+- 不新增事实；
+- 不顺手润色健康文本；
+- 能接受“少改比多改好”。
+
+### 隔离要求
+
+Repair 不重新读取完整剧情设计。
+
+它只需要：
+
+- 原始正文；
+- REPAIR_PACKET；
+- 必要的 Active Voice；
+- `runtime/LOCAL_REPAIR_CORE.md`。
+
+Repair 的任务不是证明自己比 Writer 会写，而是让一个具体摩擦消失。
+
+## Role 5：Optional Line Reader
 
 不是默认必需。
 
-只在 Blind Reader 指出明确局部语言摩擦时使用。
+只在 Blind Reader 指出明确局部语言摩擦，但 Repair 无法判断根因时使用。
 
-任务：判断该处是：
+任务：定位该处主要属于：
 
 - 中文搭配；
 - 指代；
@@ -112,17 +139,15 @@ Blind Reader 不读取：
 
 真正长期学习信号来自用户接受 / 修改，不来自 AI 自己给自己的分数。
 
-## 参数策略
+## 解码策略
 
-不在框架层规定固定 temperature、top-p、thinking budget。
+见 `architecture/DECODING_POLICY.md`。
 
-不同模型的采样行为差异很大。
+框架层只规定角色倾向：
 
-原则：
+- Context Compiler / Voice Analyst：偏稳定；
+- Writer：允许适度生成自由度；
+- Blind Reader：偏稳定；
+- Local Repair：低到中等自由度。
 
-- 先让模型能稳定遵守场景事实；
-- 再调生成自由度；
-- 不用极端低随机性强求每次一模一样；
-- 不用极端高随机性赌“灵气”。
-
-参数属于模型适配层，不属于正文方法论本体。
+具体 temperature、top-p、min-p 等参数属于模型适配层，不属于正文方法论本体。
