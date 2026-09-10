@@ -20,6 +20,51 @@ source_type:
   - user_correction      # 用户亲手修改并认可的版本
 ```
 
+## Evidence Strength
+
+来源不同，证据强度不能一样。
+
+默认：
+
+```text
+user_correction  >  user_written / human_reference  >  accepted_project
+```
+
+### user_correction
+
+最高信号。
+
+它直接说明：模型原来怎么写，用户真正会怎么改。
+
+可以用于建立/修正稳定 Voice trait，但仍需判断这次修改是不是一次性剧情需要。
+
+### user_written / human_reference
+
+强正向证据。
+
+适合学习：
+
+- 句子运动；
+- 叙事距离；
+- 对白衔接；
+- 普通度；
+- 语域；
+- 段落换手。
+
+### accepted_project
+
+弱到中等证据。
+
+它主要保证**当前项目连续性**，不能因为“用户没退稿”就自动证明这是一条全局作者偏好。
+
+规则：
+
+- 单独的 accepted_project 不得创建新的 global trait；
+- 多章反复稳定 + 用户持续接受，才可提高置信度；
+- 一旦与 user_correction / human reference 冲突，accepted_project 让位。
+
+这样避免 AI 生成 → AI 被动通过 → AI 把自己学回去。
+
 ## Approval
 
 每个 source 必须有明确状态：
@@ -41,6 +86,7 @@ approval:
 VOICE_SOURCE:
   source_id: ""
   source_type: human_reference | user_written | accepted_project | user_correction
+  evidence_strength: strong | medium | weak
   approval:
     status: approved | limited | rejected
     scope: global | project | character | scene_type
@@ -70,15 +116,37 @@ VOICE_ANCHOR:
   anchor_id: ""
   source_id: ""
   span_locator: ""
+  language_function: []
   scene_function: []
+  interaction_shape: solo | two_person | group | none
   prose_mode: []
   pov_distance: close | medium | far | mixed
   emotion_pressure: low | medium | high
-  speaker_mix: solo | two_person | group
   character_scope: ""
   project_scope: ""
   tags: []
 ```
+
+### language_function
+
+这是召回最重要的字段之一，描述**这段文字在语言层真正做什么**。
+
+示例：
+
+- confirm_bad_news
+- verify_result
+- short_decision
+- hesitate_then_act
+- deflect_question
+- familiar_teasing
+- restrained_confrontation
+- receive_order
+- notice_anomaly
+- compress_routine
+- explain_only_as_needed
+- aftermath_processing
+
+标签是检索元数据，不进入正文 prompt 成为术语。
 
 `span_locator` 指向原始语料，不需要把整段原文复制进索引文件。
 
@@ -99,19 +167,29 @@ VOICE_ANCHOR:
 
 ## Indexing
 
-检索索引应该优先支持：
+检索优先级：
 
-1. scene_function；
-2. prose_mode；
-3. narrative distance；
-4. speaker mix；
-5. pressure；
-6. semantic embedding；
-7. genre/domain。
+1. language_function；
+2. interaction_shape；
+3. prose_mode；
+4. narrative distance；
+5. evidence strength / scope；
+6. pressure；
+7. semantic embedding；
+8. genre/domain。
 
 语义 embedding 是辅助，不是唯一检索。
 
 原因：两个片段都谈“宗门名单”不代表语言功能一样；一个“现代职场收到裁员名单”的反应段，可能比另一个修仙设定介绍段更适合作为正文运动锚点。
+
+## Retrieval Hygiene
+
+如果语料足够：
+
+- 不要让 4 个 anchor 全来自同一个长段；
+- 优先避免内容高度相似但写法功能不相似的片段；
+- Correction / Project scope 与当前问题直接相关时可以覆盖来源多样性要求；
+- 召回不到好 anchor 时宁可少给，不凑数量。
 
 ## Negative Corpus
 
@@ -153,6 +231,7 @@ Voice Corpus 的价值不在“越多越好”。
 
 - 来源可信；
 - 用户真的认可；
+- 证据强度分清；
 - 功能标签准确；
 - 能在当前场景召回对的几段；
 - 不让 AI 自己的默认腔进入正向训练循环。
