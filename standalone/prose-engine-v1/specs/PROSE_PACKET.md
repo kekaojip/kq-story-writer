@@ -13,17 +13,25 @@ PROSE_PACKET:
   language: zh-CN
   genre: ""
   audience: ""
+  length_hint: ""
+
+  prose:
+    register: "现代自然中文白话 / 用户明确指定语体 / 空"
+    pace: ""
+    distance_bias: close | mixed | far | ""
+
   pov:
     person: first | third_limited | third_omniscient
     character: ""
-  length_hint: ""
 
   scene:
     start:
       place: ""
       time: ""
       current_action: ""
+      attention_seed: "人物最先注意到什么，可空"
     immediate_want: ""
+    immediate_pressure: ""
     beats:
       - "必须发生的语义事件 1"
       - "必须发生的语义事件 2"
@@ -67,7 +75,30 @@ PROSE_PACKET:
 
 信息越多，Writer 越容易回到总结/说明模式。
 
-### 2. beats 只能写语义
+### 2. genre 不等于 register
+
+这是硬规则。
+
+`genre: 修仙 / 玄幻 / 古代 / 克苏鲁 / 科幻` 只帮助理解世界和题材名词，**不能自动推导正文语体**。
+
+例如：
+
+- 修仙名词可以是“炼气、灵石、宗门”；
+- 但普通叙述、人物判断和对白仍默认使用现代中国读者第一次就能顺读的白话。
+
+只有两种证据可以改变 register：
+
+1. 用户明确指定；
+2. approved Voice evidence 明确支持。
+
+不得因为题材自行加入：
+
+- 半文半白；
+- 古老化措辞；
+- 生造仙侠词组；
+- “似有若无、眸光微凝、心下了然”式默认题材腔。
+
+### 3. beats 只能写语义
 
 好：
 
@@ -79,7 +110,22 @@ PROSE_PACKET:
 
 后一种属于写法设计，不属于剧情语义。
 
-### 3. speech_note 只写稳定人物差异
+### 4. attention_seed 只是现场起点
+
+它可以为空。
+
+如果明确知道人物最先注意什么，就写事实：
+
+- “名单上自己的名字”；
+- “门外有人敲门”；
+- “手里符纸突然发热”。
+
+不要写：
+
+- “通过视觉细节建立危机感”；
+- “先制造异常感再推进”。
+
+### 5. speech_note 只写稳定人物差异
 
 例如：
 
@@ -93,7 +139,7 @@ PROSE_PACKET:
 - 每三句必须有动作；
 - 对白占比 30%。
 
-### 4. length_hint 是软目标
+### 6. length_hint 是软目标
 
 可以写：
 
@@ -101,9 +147,9 @@ PROSE_PACKET:
 - “一个完整短场景”；
 - “只写到他推门出去”。
 
-如果字数与自然停点冲突，优先停在已指定 stop_point。
+如果字数与自然停点冲突，优先停在已指定 `stop_point`。
 
-### 5. voice 可以为空
+### 7. voice 可以为空
 
 如果没有任何 approved voice source，允许：
 
@@ -114,7 +160,7 @@ voice:
   explicit_preferences: []
 ```
 
-此时使用 Chinese Prose Base，绝不偷偷从未审核 AI 稿里构造“作者声音”。
+此时使用自然现代中文基线，绝不偷偷从未审核 AI 稿里构造“作者声音”。
 
 ## 传入前清洗
 
