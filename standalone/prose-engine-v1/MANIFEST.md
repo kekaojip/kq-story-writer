@@ -47,7 +47,7 @@ production_main_modified_by_this_module: NO
 
 ## Voice References
 
-- `references/voice-system.md`：三层 Voice 总协议。
+- `references/voice-system.md`：Voice 证据可靠度 + scope relevance 总协议。
 - `references/voice-distillation.md`：contrastive 文风蒸馏。
 - `references/anchor-retrieval.md`：功能型真人 anchor 召回。
 - `references/voice-validation.md`：close reading + stylometry 旁证。
@@ -101,15 +101,25 @@ Repair 只给：
 
 最多一轮，局部修改，保护 `keep`。
 
-## Voice Evidence Hierarchy
+## Voice Resolution
 
-默认：
+### Evidence Reliability
 
 ```text
 user_correction > user_written / human_reference > accepted_project
 ```
 
-`accepted_project` 主要服务当前项目连续性，不能单独创建新的 global Voice trait。
+冲突时证据可靠度优先。
+
+### Scope Relevance
+
+在不与高可靠证据冲突的前提下：
+
+```text
+same character / same project / same scene-function > cross-project general
+```
+
+Project Voice 因此负责当前作品连续性，但不能覆盖更可靠的用户修改或真人证据。
 
 ## 当前核心设计判断
 
@@ -122,8 +132,8 @@ user_correction > user_written / human_reference > accepted_project
 - 普通句是正常正文的重要组成。
 - Voice 使用真人证据 + 功能型 anchor，不靠形容词列表。
 - Anchor 按语言功能优先召回，题材相似最后考虑。
-- Correction Voice > Project Voice > Author Voice；同层仍受 evidence strength 约束。
 - Raw AI draft 永远不成为正向 Voice。
+- accepted_project 只做弱到中等项目连续性证据，不能单独创建 global trait。
 - 分析统计可以验证 Voice，不直接控制生成比例。
 - Blind Reader 是体验传感器，不是文学法官，也没有改稿权。
 - Repair 只消除具体摩擦，不重新写一篇“更漂亮”的版本。
