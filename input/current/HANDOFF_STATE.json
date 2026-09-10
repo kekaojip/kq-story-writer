@@ -4,16 +4,16 @@
   "chapter": 1,
   "run_type": "create",
   "status": "awaiting_external_writer",
-  "writer_attempt": 1,
+  "writer_attempt": 2,
   "delivery_mode": "CHECKPOINTED",
   "delivery_phase": "FRONT",
   "heading_literal": "# 第一章 我的未来，死在二十七天后",
   "main_source_revision": "1125f017144e25ade8bfe3b00d29f8682c5134c6",
-  "writer_repo_base_commit": "586dc942f06b96cf7c68143cfa3e77bcc844ca8b",
-  "revision_base": null,
+  "writer_repo_base_commit": "627a3802126cebcbe352a17a72b82b4347d0eef2",
+  "revision_base": "output/current/segment.md@247f3ed5acb386745ebd3a5dac75715dc8427d28",
   "checkpoint": null,
   "expected_output": {
     "segment": "output/current/segment.md"
   },
-  "note": "Fresh Chapter 1 regeneration after universal natural-Chinese framework repair. Previous accepted prose has been rolled back from Main. Old archive/chapter-001 is historical only and is not an active input."
+  "note": "FRONT attempt 1 reached the correct story checkpoint and was much more natural overall, but Main rejected one concentrated planning-register leak in the resource/route reasoning block. Attempt 2 is a local FRONT naturalness revision only; preserve story facts, scene order and stop point."
 }
